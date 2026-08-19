@@ -1,0 +1,32 @@
+---
+/**
+ * 速查页 —— 规范见 docs/page-specs.md §5
+ *
+ * 和文档页用不同版式：这是「扫一眼就走」的内容，不是顺序阅读。
+ * 双栏密排、无 TOC、可直接打印。
+ *
+ * 内容由 scripts/sync.mjs 输出到 src/cheatsheets/，不在内容集合里，
+ * 因此同一篇笔记只有 /cheatsheet/ 一个 URL。
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+
+const sheets = import.meta.glob('../cheatsheets/*.md', { eager: true });
+const entries = Object.values(sheets);
+const sheet = entries[0];
+const title = sheet?.frontmatter?.title ?? '速查表';
+const Content = sheet?.Content;
+---
+
+<StarlightPage frontmatter={{ title, tableOfContents: false }}>
+  <p class="kb-meta">分栏密排版式<i>·</i>为「扫一眼就走」优化<i>·</i>可直接打印</p>
+
+  {
+    Content ? (
+      <div class="kb-cheat sl-markdown-content">
+        <Content />
+      </div>
+    ) : (
+      <p class="kb-empty">src/cheatsheets/ 下没有内容 —— 先跑 <code>npm run sync</code>。</p>
+    )
+  }
+</StarlightPage>

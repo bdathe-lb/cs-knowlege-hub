@@ -419,3 +419,125 @@ starlight-toc a[aria-current='true'] {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ==========================================================================
+   10. 搜索结果页（docs/page-specs.md §4）
+   ========================================================================== */
+.kb-searchbar {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: var(--kb-sp-5) 0 var(--kb-sp-6);
+  max-width: 520px;
+}
+.kb-searchbar input {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-nav);
+  color: var(--kb-ink);
+  background: var(--kb-sunk);
+  border: var(--kb-bd-line);
+  padding: var(--kb-sp-2) 34px var(--kb-sp-2) var(--kb-sp-3);
+  width: 100%;
+}
+.kb-searchbar input::placeholder { color: var(--kb-muted); }
+.kb-searchbar input:focus {
+  outline: none;
+  border-color: var(--kb-accent);
+  background: var(--kb-ground);
+}
+.kb-searchbar input::-webkit-search-cancel-button { display: none; }
+.kb-kbd {
+  position: absolute;
+  right: var(--kb-sp-3);
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-th);
+  color: var(--kb-muted);
+  border: var(--kb-bd-line);
+  padding: 0 4px;
+  pointer-events: none;
+  background: var(--kb-ground);
+}
+
+.kb-hits { border-top: var(--kb-bd-line); }
+.kb-hit {
+  display: block;
+  padding: var(--kb-sp-3) 0;
+  border-bottom: var(--kb-bd-hair);
+  text-decoration: none;
+  color: var(--kb-ink2);
+}
+a.kb-hit:hover {
+  background: var(--kb-accent-bg);
+  padding-inline: var(--kb-sp-3);
+  color: var(--kb-ink2);
+}
+.kb-hit.is-todo { opacity: 0.62; }
+.kb-hit-p {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-eyebrow);
+  color: var(--kb-muted);
+}
+.kb-hit-t {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-body);
+  font-weight: 600;
+  color: var(--kb-accent);
+  margin: 2px 0 3px;
+}
+.kb-hit-t em { font-style: normal; color: var(--kb-muted); font-weight: 400; }
+.kb-hit-x { font-size: var(--kb-fs-meta); color: var(--kb-ink2); line-height: 1.6; }
+.kb-hit mark,
+mark {
+  background: var(--kb-warn-bg);
+  color: var(--kb-warn);
+  padding: 0 2px;
+  font-weight: 600;
+}
+.kb-empty {
+  padding: var(--kb-sp-6) 0;
+  color: var(--kb-muted);
+  font-size: var(--kb-fs-sm);
+}
+.kb-empty code {
+  font-family: var(--kb-font-mono);
+  background: var(--kb-sunk);
+  color: var(--kb-accent-ink);
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+
+/* ==========================================================================
+   11. 速查页（docs/page-specs.md §5）
+   ========================================================================== */
+.kb-cheat {
+  columns: 2;
+  column-gap: 34px;
+  column-rule: 1px solid var(--kb-line);
+  margin-top: var(--kb-sp-5);
+}
+.kb-cheat > * { break-inside: avoid; }
+.kb-cheat h2 {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-h2);
+  font-weight: 600;
+  letter-spacing: var(--kb-ls-label);
+  text-transform: uppercase;
+  color: var(--kb-accent);
+  border-bottom: var(--kb-bd-line);
+  padding-bottom: var(--kb-sp-1);
+  margin: 0 0 var(--kb-sp-3);
+  break-after: avoid;
+}
+.kb-cheat h2:not(:first-child) { margin-top: var(--kb-sp-6); }
+.kb-cheat p { font-size: var(--kb-fs-meta); margin: 0 0 var(--kb-sp-3); max-width: none; }
+.kb-cheat table { font-size: 12.5px; display: table; width: 100%; }
+.kb-cheat td { padding: 5px 10px 5px 0; }
+.kb-cheat pre { font-size: 12px; }
+.kb-cheat ul { font-size: var(--kb-fs-meta); }
+
+@media (max-width: 900px) {
+  .kb-cheat { columns: 1; column-rule: none; }
+}
+@media print {
+  .kb-cheat { columns: 2; }
+}

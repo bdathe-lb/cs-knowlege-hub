@@ -19,6 +19,14 @@ const SRC = process.env.KB_SOURCE ?? path.resolve(ROOT, '../knowledge-hub');
 const OUT_DOCS = path.join(ROOT, 'src/content/docs');
 const OUT_DATA = path.join(ROOT, 'src/data');
 const OUT_ASSETS = path.join(ROOT, 'public/assets');
+const OUT_CHEAT = path.join(ROOT, 'src/cheatsheets');
+
+/**
+ * 速查类笔记 —— 需要分栏密排版式，不走文档页（docs/page-specs.md §5）。
+ * 这些不进内容集合，改为输出到 src/cheatsheets/ 由自定义页面渲染，
+ * 避免同一篇笔记产生两个 URL。
+ */
+const CHEATSHEETS = new Map([['cs-basics/cheatsheet/linux-cheatsheet.md', '/cheatsheet/']]);
 
 /** cs-basics 没有索引表，在这里声明。新增笔记时补一行。 */
 const CS_BASICS = [
@@ -119,7 +127,9 @@ function transform(relPath) {
 
 /* ── 4. 执行 ───────────────────────────────────────────────────── */
 fs.rmSync(OUT_DOCS, { recursive: true, force: true });
+fs.rmSync(OUT_CHEAT, { recursive: true, force: true });
 fs.mkdirSync(OUT_DOCS, { recursive: true });
+fs.mkdirSync(OUT_CHEAT, { recursive: true });
 fs.mkdirSync(OUT_DATA, { recursive: true });
 
 const cats = parseIndex();
@@ -136,12 +146,24 @@ for (const cat of cats) {
       continue;
     }
     const d = transform(tool.path);
-    const dest = path.join(OUT_DOCS, tool.path);
-    fs.mkdirSync(path.dirname(dest), { recursive: true });
-    fs.writeFileSync(dest, d.content);
-    docs[tool.path] = { h1: d.title, heads: d.heads, intro: d.intro, lines: d.lines };
-    tool.slug = toSlug(tool.path);
-    tool.url = toUrl(tool.path);
+    const cheatUrl = CHEATSHEETS.get(tool.path);
+
+    if (cheatUrl) {
+      // 速查页：出到 src/cheatsheets/，不进内容集合，由自定义页面渲染
+      const dest = path.join(OUT_CHEAT, path.basename(tool.path));
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, d.content);
+      tool.slug = null; // 无内容集合条目，不进 Starlight 侧栏
+      tool.url = cheatUrl;
+    } else {
+      const dest = path.join(OUT_DOCS, tool.path);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, d.content);
+      tool.slug = toSlug(tool.path);
+      tool.url = toUrl(tool.path);
+    }
+
+    docs[tool.path] = { h1: d.title, heads: d.heads, intro: d.intro, lines: d.lines, url: tool.url };
     written++;
   }
 }

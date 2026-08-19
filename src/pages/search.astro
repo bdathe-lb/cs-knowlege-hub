@@ -1,0 +1,217 @@
+---
+/**
+ * 搜索结果页 —— 规范见 docs/page-specs.md §4
+ *
+ * 两层检索，互补：
+ *   条目匹配  从 kb.json 查条目名/说明/小节标题/简介。构建时嵌入，dev 下也能用，零延迟。
+ *   正文匹配  走 Pagefind，覆盖全文并给出小节级锚点。索引在 build 时生成，
+ *             因此 dev 下不可用 —— 页面会明说，不静默失败。
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import kb from '../data/kb.json';
+
+const INDEX = kb.cats.flatMap((c) =>
+  c.tools.map((t) => {
+    const d = t.path ? kb.docs[t.path] : null;
+    return {
+      n: t.name,
+      d: t.desc,
+      c: c.name,
+      u: t.url ?? null,
+      p: t.path ?? null,
+      t: d ? d.h1 : t.name,
+      h: d ? d.heads : [],
+      i: d ? d.intro : '',
+    };
+  })
+);
+const STATS = kb.stats;
+---
+
+<StarlightPage frontmatter={{ title: '搜索', tableOfContents: false }}>
+  <p class="kb-meta">
+    检索 {STATS.tools} 个条目<i>·</i>{STATS.written} 篇正文<i>·</i>{STATS.lines.toLocaleString()} 行
+  </p>
+
+  <div class="kb-searchbar not-content">
+    <input
+      id="kb-q"
+      type="search"
+      placeholder="搜索条目名、说明、小节标题、正文…"
+      autocomplete="off"
+      autofocus
+      aria-label="搜索知识库"
+    />
+    <span class="kb-kbd">/</span>
+  </div>
+
+  <div id="kb-results" class="not-content"></div>
+</StarlightPage>
+
+<script is:inline define:vars={{ INDEX }}>
+  const q = document.getElementById('kb-q');
+  const out = document.getElementById('kb-results');
+
+  const esc = (s) =>
+    String(s ?? '').replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[m]);
+  const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const hi = (s, term) =>
+    term ? esc(s).replace(new RegExp(reEsc(esc(term)), 'gi'), (m) => `<mark>${m}</mark>`) : esc(s);
+
+  /* ── 条目匹配：按规范的优先级表出结果 ─────────────────────────── */
+  function searchMeta(query) {
+    const lq = query.toLowerCase();
+    const hits = [];
+    for (const e of INDEX) {
+      const ln = e.n.toLowerCase();
+      // 条目名匹配压过说明匹配；同级再按匹配位置排。
+      // 搜「压缩」时 gzip（说明「压缩/解压工具」，命中在位置 0）要排在
+      // tr（说明「字符转换/删除/压缩」，命中在位置 7）前面。
+      if (ln.startsWith(lq)) hits.push({ e, where: e.c, text: e.d, score: 0, pos: 0 });
+      else if (ln.includes(lq)) hits.push({ e, where: e.c, text: e.d, score: 1, pos: ln.indexOf(lq) });
+      else if (e.d.includes(query)) hits.push({ e, where: e.c, text: e.d, score: 2, pos: e.d.indexOf(query) });
+      for (const h of e.h) {
+        const i = h.toLowerCase().indexOf(lq);
+        if (i >= 0) hits.push({ e, where: `${e.t} › ${h}`, text: e.i, score: 3, pos: i });
+      }
+      if (e.i && e.i.includes(query))
+        hits.push({ e, where: `${e.t} › ${e.h[0] ?? ''}`, text: e.i, score: 4, pos: e.i.indexOf(query) });
+    }
+    const seen = new Set();
+    return hits
+      .sort((a, b) => a.score - b.score || a.pos - b.pos || a.e.n.length - b.e.n.length)
+      .filter((x) => {
+        const k = x.e.n + '|' + x.where;
+        return seen.has(k) ? false : (seen.add(k), true);
+      })
+      .slice(0, 24);
+  }
+
+  const renderHit = ({ path, title, where, excerpt, url }) => {
+    const inner =
+      `<div class="kb-hit-p">${esc(path)}</div>` +
+      `<div class="kb-hit-t">${title}${where ? ` <em>${where}</em>` : ''}</div>` +
+      `<div class="kb-hit-x">${excerpt}</div>`;
+    return url
+      ? `<a class="kb-hit" href="${esc(url)}">${inner}</a>`
+      : `<div class="kb-hit is-todo">${inner}</div>`;
+  };
+
+  /* ── 正文匹配：Pagefind。索引在 build 时生成，dev 下不存在 ────── */
+  let pfPromise = null;
+  function loadPagefind() {
+    if (!pfPromise) {
+      const p = '/pagefind/pagefind.js';
+      pfPromise = import(/* @vite-ignore */ p).catch(() => null);
+    }
+    return pfPromise;
+  }
+
+  async function searchBody(query) {
+    const pf = await loadPagefind();
+    if (!pf) return null;
+    const { results } = await pf.search(query);
+    const out = [];
+    for (const r of results.slice(0, 8)) {
+      const d = await r.data();
+      const subs = (d.sub_results ?? []).slice(0, 3);
+      if (subs.length) {
+        for (const s of subs)
+          out.push({
+            path: d.url,
+            title: esc(d.meta?.title ?? d.url),
+            where: esc(s.title ?? ''),
+            excerpt: s.excerpt,
+            url: s.url,
+          });
+      } else {
+        out.push({ path: d.url, title: esc(d.meta?.title ?? d.url), where: '', excerpt: d.excerpt, url: d.url });
+      }
+    }
+    return out;
+  }
+
+  /* ── 渲染 ──────────────────────────────────────────────────────── */
+  let token = 0;
+
+  async function run(query) {
+    const my = ++token;
+    const term = query.trim();
+
+    if (!term) {
+      out.innerHTML = `<p class="kb-empty">输入关键词开始搜索。试试 <code>字段</code>、<code>压缩</code>、<code>进程</code>、<code>awk</code>。</p>`;
+      return;
+    }
+
+    const meta = searchMeta(term);
+    let html = '';
+
+    if (meta.length) {
+      html += `<h2 class="kb-h2">条目匹配 <em>${meta.length}</em></h2><div class="kb-hits">`;
+      for (const m of meta)
+        html += renderHit({
+          path: m.e.p ?? `${m.e.c} / 待写`,
+          title: hi(m.e.n, term),
+          where: hi(m.where, term),
+          excerpt: hi((m.text ?? '').slice(0, 120), term) + (m.text && m.text.length > 120 ? '…' : ''),
+          url: m.e.u,
+        });
+      html += `</div>`;
+    }
+
+    html += `<h2 class="kb-h2">正文匹配 <em id="kb-body-n">…</em></h2><div id="kb-body" class="kb-hits">
+      <p class="kb-empty">检索中…</p></div>`;
+    out.innerHTML = html;
+
+    const body = await searchBody(term);
+    if (my !== token) return;
+    const n = document.getElementById('kb-body-n');
+    const box = document.getElementById('kb-body');
+    if (!box) return;
+
+    if (body === null) {
+      n.textContent = '不可用';
+      box.innerHTML = `<p class="kb-empty">正文索引由 Pagefind 在构建时生成，开发服务器下不可用。
+        跑 <code>npm run build &amp;&amp; npm run preview</code> 查看全文检索效果。</p>`;
+    } else if (!body.length) {
+      n.textContent = '0';
+      box.innerHTML = `<p class="kb-empty">正文里没有匹配。</p>`;
+    } else {
+      n.textContent = String(body.length);
+      box.innerHTML = body.map(renderHit).join('');
+    }
+
+    if (!meta.length && (body === null || !body.length)) {
+      out.innerHTML = `<p class="kb-empty">没有匹配。试试 <code>字段</code>、<code>压缩</code>、<code>进程</code>、<code>awk</code>。</p>`;
+    }
+  }
+
+  /* ── 事件 ──────────────────────────────────────────────────────── */
+  let timer;
+  q.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const v = q.value.trim();
+      const u = new URL(location.href);
+      v ? u.searchParams.set('q', v) : u.searchParams.delete('q');
+      history.replaceState(null, '', u);
+      run(q.value);
+    }, 120);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== q) {
+      e.preventDefault();
+      q.focus();
+      q.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === q) {
+      q.value = '';
+      run('');
+    }
+  });
+
+  const initial = new URL(location.href).searchParams.get('q') ?? '';
+  q.value = initial;
+  run(initial);
+</script>

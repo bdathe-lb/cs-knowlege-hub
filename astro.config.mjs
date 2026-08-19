@@ -15,11 +15,15 @@ const kb = JSON.parse(fs.readFileSync(new URL('./src/data/kb.json', import.meta.
  */
 const sidebar = [
   { label: '总目录', link: '/' },
+  { label: '速查表', link: '/cheatsheet/' },
+  { label: '搜索', link: '/search/' },
   ...kb.cats
     .map((c) => {
-      const items = c.tools.filter((t) => t.path);
+      const written = c.tools.filter((t) => t.path);
+      // 速查页不在内容集合里（slug 为 null），不进侧栏分组
+      const items = written.filter((t) => t.slug);
       return {
-        label: `${c.name} · ${items.length}/${c.tools.length}`,
+        label: `${c.name} · ${written.length}/${c.tools.length}`,
         items: items.map((t) => ({ label: t.name, slug: t.slug })),
       };
     })

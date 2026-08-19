@@ -1,0 +1,421 @@
+/* ==========================================================================
+   技术规格书主题 —— Starlight 桥接层与组件样式
+   规范：docs/design-system.md ｜ 令牌：docs/tokens.css
+   ========================================================================== */
+
+/* ── 1. 桥接：把 Starlight 的 --sl-* 指向我们的 --kb-* ──────────────────
+   变量名已对着实际安装的 Starlight 0.41 核过，不是照记忆写的。
+   ────────────────────────────────────────────────────────────────────── */
+:root,
+:root[data-theme='dark'],
+:root[data-theme='light'] {
+  --sl-color-bg:             var(--kb-ground);
+  --sl-color-bg-sidebar:     var(--kb-side);
+  --sl-color-bg-nav:         var(--kb-bar);
+  --sl-color-bg-inline-code: var(--kb-sunk);
+  --sl-color-bg-accent:      var(--kb-accent);
+
+  --sl-color-text:           var(--kb-ink2);
+  --sl-color-text-accent:    var(--kb-accent);
+  --sl-color-white:          var(--kb-ink);
+  --sl-color-black:          var(--kb-ground);
+
+  --sl-color-gray-1: var(--kb-ink);
+  --sl-color-gray-2: var(--kb-ink2);
+  --sl-color-gray-3: var(--kb-muted);
+  --sl-color-gray-4: var(--kb-muted);
+  --sl-color-gray-5: var(--kb-line);
+  --sl-color-gray-6: var(--kb-sunk);
+  --sl-color-gray-7: var(--kb-sunk);
+
+  --sl-color-hairline:       var(--kb-line);
+  --sl-color-hairline-light: var(--kb-hair);
+  --sl-color-hairline-shade: var(--kb-line);
+
+  --sl-color-accent:      var(--kb-accent);
+  --sl-color-accent-high: var(--kb-accent-ink);
+  --sl-color-accent-low:  var(--kb-accent-bg);
+
+  --sl-color-asides-border:      var(--kb-line);
+  --sl-color-asides-text-accent: var(--kb-accent);
+
+  --sl-font:      var(--kb-font-sans);
+  --sl-font-mono: var(--kb-font-mono);
+
+  --sl-text-body:    var(--kb-fs-body);
+  --sl-text-body-sm: var(--kb-fs-meta);
+  --sl-text-code:    var(--kb-fs-code);
+  --sl-text-code-sm: var(--kb-fs-code);
+  --sl-text-h1:      var(--kb-fs-h1);
+  --sl-text-h2:      20px;
+  --sl-text-h3:      var(--kb-fs-h3);
+  --sl-text-h4:      var(--kb-fs-body);
+
+  --sl-sidebar-width: var(--kb-w-sidebar);
+  --sl-shadow-sm: none;
+  --sl-shadow-md: none;
+  --sl-shadow-lg: none;
+}
+
+/* ── 2. 全局几何：圆角归零、去阴影（设计规范 §5、§10） ───────────────── */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body {
+  background: var(--kb-ground);
+  color: var(--kb-ink2);
+  font-family: var(--kb-font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--kb-accent);
+  outline-offset: 2px;
+}
+
+/* ── 3. 侧栏 ─────────────────────────────────────────────────────────── */
+.sidebar-content {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-nav);
+}
+.sidebar-content summary,
+.sidebar-content .group-label span,
+starlight-toc > nav > h2 {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-h2);
+  font-weight: 600;
+  letter-spacing: var(--kb-ls-label);
+  text-transform: uppercase;
+  color: var(--kb-muted);
+}
+.sidebar-content a {
+  color: var(--kb-ink2);
+  border-inline-start: 1px solid var(--kb-line);
+  padding-block: var(--kb-sp-1);
+}
+.sidebar-content a:hover {
+  color: var(--kb-accent);
+  background: var(--kb-accent-bg);
+}
+.sidebar-content a[aria-current='page'],
+.sidebar-content a[aria-current='page']:hover {
+  color: var(--kb-accent);
+  font-weight: 600;
+  background: var(--kb-accent-bg);
+  border-inline-start: 2px solid var(--kb-accent);
+}
+
+/* ── 4. 正文排版（设计规范 §4） ───────────────────────────────────────── */
+.sl-markdown-content {
+  font-size: var(--kb-fs-body);
+  line-height: var(--kb-lh-body);
+  color: var(--kb-ink2);
+}
+.sl-markdown-content p,
+.sl-markdown-content ul,
+.sl-markdown-content ol {
+  max-width: var(--kb-w-measure);
+}
+.sl-markdown-content li { font-size: var(--kb-fs-sm); }
+.sl-markdown-content strong { color: var(--kb-ink); font-weight: 600; }
+
+/* 页标题 */
+.content-panel h1#_top {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-h1);
+  font-weight: 600;
+  letter-spacing: var(--kb-ls-h1);
+  line-height: var(--kb-lh-tight);
+  color: var(--kb-ink);
+  border-bottom: var(--kb-bd-rule);
+  padding-bottom: var(--kb-sp-3);
+  text-wrap: balance;
+}
+
+/* 小节标题：等宽 · 全大写 · 强调色 —— 本方向的标志 */
+.sl-markdown-content h2 {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-h2);
+  font-weight: 600;
+  letter-spacing: var(--kb-ls-label);
+  text-transform: uppercase;
+  color: var(--kb-accent);
+  border-bottom: var(--kb-bd-line);
+  padding-bottom: var(--kb-sp-1);
+  margin-top: var(--kb-sp-6);
+}
+.sl-markdown-content h3 {
+  font-size: var(--kb-fs-h3);
+  font-weight: 600;
+  color: var(--kb-ink);
+  margin-top: var(--kb-sp-5);
+}
+.sl-markdown-content h4 {
+  font-size: var(--kb-fs-body);
+  font-weight: 600;
+  color: var(--kb-ink);
+}
+
+/* ── 5. 表格：三线表（设计规范 §6.7） ────────────────────────────────── */
+.sl-markdown-content table {
+  border-collapse: collapse;
+  font-size: var(--kb-fs-sm);
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.sl-markdown-content th {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-th);
+  font-weight: 600;
+  letter-spacing: var(--kb-ls-th);
+  text-transform: uppercase;
+  color: var(--kb-muted);
+  text-align: left;
+  white-space: nowrap;
+  border: none;
+  border-bottom: var(--kb-bd-th);
+  padding: var(--kb-sp-2) var(--kb-sp-4) var(--kb-sp-2) 0;
+}
+.sl-markdown-content td {
+  border: none;
+  border-bottom: var(--kb-bd-hair);
+  padding: var(--kb-sp-2) var(--kb-sp-4) var(--kb-sp-2) 0;
+  color: var(--kb-ink2);
+  vertical-align: top;
+}
+
+/* ── 6. 代码 ─────────────────────────────────────────────────────────── */
+.sl-markdown-content :not(pre) > code {
+  background: var(--kb-sunk);
+  color: var(--kb-accent-ink);
+  border: none;
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+.expressive-code .frame pre,
+.sl-markdown-content pre {
+  background: var(--kb-sunk) !important;
+  border: none !important;
+  border-left: var(--kb-bd-mark) !important;
+  font-size: var(--kb-fs-code);
+  line-height: var(--kb-lh-code);
+}
+.expressive-code .frame {
+  --code-background: var(--kb-sunk);
+  --border-color: var(--kb-line);
+}
+
+/* 引用块用中性线，强调线是代码块的标志（设计规范 §6.10） */
+.sl-markdown-content blockquote {
+  border-inline-start: var(--kb-bd-line);
+  padding-inline-start: var(--kb-sp-4);
+  font-size: var(--kb-fs-sm);
+  color: var(--kb-muted);
+}
+
+/* ── 7. 页内目录、上下篇 ─────────────────────────────────────────────── */
+starlight-toc a {
+  font-size: var(--kb-fs-meta);
+  border-inline-start: 1px solid var(--kb-line);
+}
+starlight-toc a[aria-current='true'] {
+  color: var(--kb-accent);
+  font-weight: 600;
+  border-inline-start: 2px solid var(--kb-accent);
+}
+.pagination-links a {
+  border: var(--kb-bd-line);
+  background: var(--kb-ground);
+}
+.pagination-links a:hover {
+  background: var(--kb-accent-bg);
+  border-color: var(--kb-line);
+}
+.pagination-links a span:last-child {
+  font-family: var(--kb-font-mono);
+  color: var(--kb-accent);
+  font-weight: 600;
+}
+
+/* ── 8. 图片 ─────────────────────────────────────────────────────────── */
+.sl-markdown-content img {
+  max-width: 100%;
+  border: var(--kb-bd-line);
+  background: var(--kb-ground);
+}
+
+/* ==========================================================================
+   9. 自定义页面组件（总目录 / 分区页）
+   ========================================================================== */
+.kb-eyebrow {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--kb-ls-eyebrow);
+  text-transform: uppercase;
+  color: var(--kb-accent);
+  margin-bottom: var(--kb-sp-2);
+}
+.kb-meta {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-meta);
+  color: var(--kb-muted);
+  font-variant-numeric: tabular-nums;
+}
+.kb-meta i { font-style: normal; color: var(--kb-line); margin: 0 var(--kb-sp-2); }
+
+.kb-h2 {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-h2);
+  font-weight: 600;
+  letter-spacing: var(--kb-ls-label);
+  text-transform: uppercase;
+  color: var(--kb-accent);
+  border-bottom: var(--kb-bd-line);
+  padding-bottom: var(--kb-sp-1);
+  margin: var(--kb-sp-7) 0 var(--kb-sp-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.kb-h2 em {
+  font-style: normal;
+  color: var(--kb-muted);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 统计条 —— 网格缝用 gap + 背景实现，不给每格描边（设计规范 §5） */
+.kb-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 1px;
+  background: var(--kb-line);
+  border: var(--kb-bd-line);
+  margin-top: var(--kb-sp-5);
+}
+.kb-st { background: var(--kb-ground); padding: var(--kb-sp-3) var(--kb-sp-4); }
+.kb-st-n {
+  font-family: var(--kb-font-mono);
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+  color: var(--kb-ink);
+}
+.kb-st-l { font-size: var(--kb-fs-meta); color: var(--kb-muted); margin-top: 2px; }
+.kb-st.is-accent .kb-st-n { color: var(--kb-accent); }
+.kb-st.is-warn .kb-st-n { color: var(--kb-warn); }
+
+/* 覆盖度行 */
+.kb-cov { border: var(--kb-bd-line); border-bottom: none; }
+.kb-cov-r {
+  display: grid;
+  grid-template-columns: 150px 1fr 62px;
+  gap: var(--kb-sp-4);
+  align-items: center;
+  padding: var(--kb-sp-3) var(--kb-sp-4);
+  border-bottom: var(--kb-bd-line);
+  width: 100%;
+  text-align: left;
+  color: var(--kb-ink2);
+  text-decoration: none;
+}
+.kb-cov-r:hover { background: var(--kb-accent-bg); color: var(--kb-ink2); }
+.kb-cov-n { font-size: var(--kb-fs-sm); font-weight: 500; }
+.kb-cov-bar { height: 6px; background: var(--kb-sunk); position: relative; overflow: hidden; }
+.kb-cov-bar span { position: absolute; inset: 0 auto 0 0; background: var(--kb-accent); }
+.kb-cov-x {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-meta);
+  color: var(--kb-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.kb-cov-x b { color: var(--kb-ink); font-weight: 600; }
+
+/* 条目格 */
+.kb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(178px, 1fr));
+  gap: 1px;
+  background: var(--kb-line);
+  border: var(--kb-bd-line);
+}
+.kb-cell {
+  background: var(--kb-ground);
+  padding: var(--kb-sp-3) var(--kb-sp-4);
+  text-align: left;
+  display: block;
+  text-decoration: none;
+  color: var(--kb-ink2);
+}
+.kb-cell:hover { background: var(--kb-accent-bg); color: var(--kb-ink2); }
+.kb-cell.is-todo { background: var(--kb-sunk); cursor: default; }
+.kb-cell.is-todo:hover { background: var(--kb-sunk); }
+.kb-cell-n {
+  font-family: var(--kb-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kb-ink);
+}
+.kb-cell.is-todo .kb-cell-n { color: var(--kb-muted); font-weight: 400; }
+.kb-cell-d { font-size: var(--kb-fs-meta); color: var(--kb-muted); margin-top: 1px; line-height: 1.4; }
+
+/* 状态标签 */
+.kb-tag {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-th);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+.kb-tag.is-ok { color: var(--kb-accent); background: var(--kb-accent-bg); }
+.kb-tag.is-todo { color: var(--kb-warn); background: var(--kb-warn-bg); float: right; }
+
+/* 分区页表格 */
+.kb-tw { overflow-x: auto; }
+.kb-table { border-collapse: collapse; width: 100%; font-size: var(--kb-fs-sm); min-width: 440px; }
+.kb-table th {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-th);
+  letter-spacing: var(--kb-ls-th);
+  text-transform: uppercase;
+  color: var(--kb-muted);
+  font-weight: 600;
+  text-align: left;
+  border-bottom: var(--kb-bd-th);
+  padding: var(--kb-sp-2) var(--kb-sp-4) var(--kb-sp-2) 0;
+  white-space: nowrap;
+}
+.kb-table td {
+  border-bottom: var(--kb-bd-hair);
+  padding: var(--kb-sp-2) var(--kb-sp-4) var(--kb-sp-2) 0;
+  color: var(--kb-ink2);
+  vertical-align: top;
+}
+.kb-table td.num {
+  font-family: var(--kb-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: 12px;
+}
+.kb-table tr.is-todo td { color: var(--kb-muted); }
+.kb-table a { color: inherit; text-decoration: none; display: block; }
+.kb-table tr.is-link:hover td { background: var(--kb-accent-bg); }
+.kb-table code {
+  font-family: var(--kb-font-mono);
+  background: var(--kb-sunk);
+  color: var(--kb-accent-ink);
+  padding: 1px 5px;
+  font-size: 0.9em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

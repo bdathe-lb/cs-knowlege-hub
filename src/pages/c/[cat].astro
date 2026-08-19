@@ -1,0 +1,56 @@
+---
+/**
+ * 分区页 —— 规范见 docs/page-specs.md §2
+ *
+ * 行数列不是凑数：make.md 1624 行 vs blkid.md 几十行，
+ * 一眼能分出哪篇要啃、哪篇是速查。
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import kb from '../../data/kb.json';
+
+export function getStaticPaths() {
+  return kb.cats.map((c) => ({ params: { cat: c.slug }, props: { cat: c } }));
+}
+
+const { cat } = Astro.props;
+const written = cat.tools.filter((t) => t.path).length;
+const pct = Math.round((written / cat.tools.length) * 100);
+---
+
+<StarlightPage frontmatter={{ title: cat.name, tableOfContents: false }}>
+  <p class="kb-meta">
+    {cat.tools.length} 个条目<i>·</i>{written} 篇已写<i>·</i>覆盖 {pct}%
+  </p>
+
+  <div class="kb-tw not-content" style="margin-top:1.5rem">
+    <table class="kb-table">
+      <thead>
+        <tr>
+          <th>命令</th><th>说明</th><th>状态</th><th style="text-align:right">行数</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          cat.tools.map((t) => {
+            const d = t.path ? kb.docs[t.path] : null;
+            return t.path ? (
+              <tr class="is-link">
+                <td><a href={t.url}><code>{t.name}</code></a></td>
+                <td><a href={t.url}>{t.desc}</a></td>
+                <td><a href={t.url}><span class="kb-tag is-ok">已写</span></a></td>
+                <td class="num"><a href={t.url}>{d.lines}</a></td>
+              </tr>
+            ) : (
+              <tr class="is-todo">
+                <td><code>{t.name}</code></td>
+                <td>{t.desc}</td>
+                <td><span class="kb-tag is-todo" style="float:none">待写</span></td>
+                <td class="num">—</td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+  </div>
+</StarlightPage>

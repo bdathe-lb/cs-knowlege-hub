@@ -1,0 +1,72 @@
+---
+/**
+ * 总目录（首页）—— 规范见 docs/page-specs.md §1
+ *
+ * 与平铺条目表的区别：先给覆盖度，再给条目。
+ * 「哪个分区欠账最多」是决定下一篇写什么的依据，必须一眼可见。
+ */
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import kb from '../data/kb.json';
+
+const { cats, stats } = kb;
+const pct = (w, n) => Math.round((w / n) * 100);
+---
+
+<StarlightPage frontmatter={{ title: '总目录', tableOfContents: false }}>
+  <p class="kb-meta">
+    {stats.cats} 个分区<i>·</i>{stats.tools} 个条目<i>·</i>{stats.written} 篇已写<i>·</i>{
+      stats.lines.toLocaleString()
+    } 行
+  </p>
+
+  <div class="kb-stats not-content">
+    <div class="kb-st"><div class="kb-st-n">{stats.tools}</div><div class="kb-st-l">追踪条目</div></div>
+    <div class="kb-st is-accent"><div class="kb-st-n">{stats.written}</div><div class="kb-st-l">已写笔记</div></div>
+    <div class="kb-st is-warn"><div class="kb-st-n">{stats.todo}</div><div class="kb-st-l">待写</div></div>
+    <div class="kb-st"><div class="kb-st-n">{pct(stats.written, stats.tools)}%</div><div class="kb-st-l">覆盖度</div></div>
+    <div class="kb-st"><div class="kb-st-n">{stats.lines.toLocaleString()}</div><div class="kb-st-l">总行数</div></div>
+  </div>
+
+  <h2 class="kb-h2">分区覆盖度 <em>点击进入分区</em></h2>
+  <div class="kb-cov not-content">
+    {
+      cats.map((c) => {
+        const w = c.tools.filter((t) => t.path).length;
+        return (
+          <a class="kb-cov-r" href={`/c/${c.slug}/`}>
+            <span class="kb-cov-n">{c.name}</span>
+            <span class="kb-cov-bar"><span style={`width:${pct(w, c.tools.length)}%`} /></span>
+            <span class="kb-cov-x"><b>{w}</b>/{c.tools.length}</span>
+          </a>
+        );
+      })
+    }
+  </div>
+
+  {
+    cats.map((c) => {
+      const w = c.tools.filter((t) => t.path).length;
+      return (
+        <>
+          <h2 class="kb-h2">{c.name} <em>{w}/{c.tools.length}</em></h2>
+          <div class="kb-grid not-content">
+            {c.tools.map((t) =>
+              t.path ? (
+                <a class="kb-cell" href={t.url}>
+                  <div class="kb-cell-n">{t.name}</div>
+                  <div class="kb-cell-d">{t.desc}</div>
+                </a>
+              ) : (
+                <span class="kb-cell is-todo">
+                  <span class="kb-tag is-todo">待写</span>
+                  <div class="kb-cell-n">{t.name}</div>
+                  <div class="kb-cell-d">{t.desc}</div>
+                </span>
+              )
+            )}
+          </div>
+        </>
+      );
+    })
+  }
+</StarlightPage>

@@ -7,12 +7,52 @@
 
 ## 现状
 
-设计阶段。已定：
+站点已跑通。Astro 7 + Starlight 0.41，46 个页面，Pagefind 中文全文搜索。
 
-- 视觉方向：**技术规格书（Spec Sheet）** —— 直角、发丝线、等宽标题、密度优先
-- 计划引擎：Astro Starlight（桥接自有令牌，见 `docs/design-system.md` §11）
+```bash
+npm install
+npm run dev      # http://localhost:4321
+npm run build    # → dist/
+```
 
-尚未开始实现。
+`dev` / `build` 会先自动执行 `npm run sync`。
+
+### 构建流程
+
+```
+~/projects/knowledge-hub/          源仓库（只读，唯一真源）
+        │
+        ├─ linux-tools/README.md ──┐
+        └─ **/*.md ────────────────┤
+                                   ▼
+                          scripts/sync.mjs
+                                   │
+            ┌──────────────────────┼──────────────────────┐
+            ▼                      ▼                      ▼
+   src/content/docs/**      src/data/kb.json       public/assets/
+   （注入 frontmatter）      （分区/条目/统计）        （图片）
+            │                      │
+            └──────────┬───────────┘
+                       ▼
+                 Astro + Starlight
+                       ▼
+                     dist/
+```
+
+源笔记没有 frontmatter，而 Starlight 的 `title` 是必填字段 ——
+`sync.mjs` 把每篇的 `# 一级标题` 提升为 `title` 并从正文剥离（避免渲染出两个 h1），
+同时重写图片路径和笔记间的 `.md` 链接。
+
+### 已知偏差
+
+侧栏只列已写笔记，不含 20 个待写条目 —— Starlight 的侧栏项必须是可跳转链接，
+无法渲染「灰化不可点」态。全部 58 个条目见总目录页。
+补齐需覆盖 Sidebar 组件，见 `docs/page-specs.md` §6。
+
+### 设计方向
+
+**技术规格书（Spec Sheet）** —— 直角、发丝线、等宽标题、密度优先。
+令牌通过 `--sl-*` → `--kb-*` 桥接进 Starlight，见 `docs/design-system.md` §11。
 
 ## 文档
 

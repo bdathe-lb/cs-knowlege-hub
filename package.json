@@ -1,0 +1,19 @@
+{
+  "name": "knowledge-hub-web",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync": "node scripts/sync.mjs",
+    "dev": "npm run sync && astro dev",
+    "build": "npm run sync && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.7",
+    "astro": "^7.2.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

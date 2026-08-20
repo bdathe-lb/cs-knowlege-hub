@@ -227,18 +227,40 @@ starlight-toc a[aria-current='true'] {
   font-weight: 600;
   border-inline-start: 2px solid var(--kb-accent);
 }
+/* 上下篇：Starlight 默认把标题排到 2xl，在文末非常突兀。
+   压回规范 §6.13 的尺寸 —— 这是导航附件，不是内容。 */
+.pagination-links {
+  gap: var(--kb-sp-2);
+  margin-top: var(--kb-sp-7);
+}
 .pagination-links a {
   border: var(--kb-bd-line);
   background: var(--kb-ground);
+  padding: var(--kb-sp-2) var(--kb-sp-3);
+  gap: var(--kb-sp-2);
+  align-items: center;
 }
 .pagination-links a:hover {
   background: var(--kb-accent-bg);
   border-color: var(--kb-line);
 }
-.pagination-links a span:last-child {
+.pagination-links a svg {
+  --sl-icon-size: 0.9rem !important;
+  width: 14px;
+  height: 14px;
+  color: var(--kb-muted);
+  flex: none;
+}
+.pagination-links a > span {
+  font-size: var(--kb-fs-eyebrow);
+  color: var(--kb-muted);
+  line-height: 1.35;
+}
+.pagination-links a .link-title {
   font-family: var(--kb-font-mono);
-  color: var(--kb-accent);
+  font-size: var(--kb-fs-nav);
   font-weight: 600;
+  color: var(--kb-accent);
 }
 
 /* ── 8. 图片 ─────────────────────────────────────────────────────────── */
@@ -282,61 +304,14 @@ starlight-toc a[aria-current='true'] {
   justify-content: space-between;
   align-items: baseline;
 }
+.kb-h2 a { color: inherit; text-decoration: none; }
+.kb-h2 a:hover { color: var(--kb-accent-ink); text-decoration: underline; text-underline-offset: 3px; }
 .kb-h2 em {
   font-style: normal;
   color: var(--kb-muted);
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 }
-
-/* 统计条 —— 网格缝用 gap + 背景实现，不给每格描边（设计规范 §5） */
-.kb-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-  gap: 1px;
-  background: var(--kb-line);
-  border: var(--kb-bd-line);
-  margin-top: var(--kb-sp-5);
-}
-.kb-st { background: var(--kb-ground); padding: var(--kb-sp-3) var(--kb-sp-4); }
-.kb-st-n {
-  font-family: var(--kb-font-mono);
-  font-size: 22px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.15;
-  color: var(--kb-ink);
-}
-.kb-st-l { font-size: var(--kb-fs-meta); color: var(--kb-muted); margin-top: 2px; }
-.kb-st.is-accent .kb-st-n { color: var(--kb-accent); }
-.kb-st.is-warn .kb-st-n { color: var(--kb-warn); }
-
-/* 覆盖度行 */
-.kb-cov { border: var(--kb-bd-line); border-bottom: none; }
-.kb-cov-r {
-  display: grid;
-  grid-template-columns: 150px 1fr 62px;
-  gap: var(--kb-sp-4);
-  align-items: center;
-  padding: var(--kb-sp-3) var(--kb-sp-4);
-  border-bottom: var(--kb-bd-line);
-  width: 100%;
-  text-align: left;
-  color: var(--kb-ink2);
-  text-decoration: none;
-}
-.kb-cov-r:hover { background: var(--kb-accent-bg); color: var(--kb-ink2); }
-.kb-cov-n { font-size: var(--kb-fs-sm); font-weight: 500; }
-.kb-cov-bar { height: 6px; background: var(--kb-sunk); position: relative; overflow: hidden; }
-.kb-cov-bar span { position: absolute; inset: 0 auto 0 0; background: var(--kb-accent); }
-.kb-cov-x {
-  font-family: var(--kb-font-mono);
-  font-size: var(--kb-fs-meta);
-  color: var(--kb-muted);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.kb-cov-x b { color: var(--kb-ink); font-weight: 600; }
 
 /* 条目格 */
 .kb-grid {
@@ -511,11 +486,14 @@ mark {
    ========================================================================== */
 .kb-cheat {
   columns: 2;
-  column-gap: 34px;
+  column-gap: 30px;
   column-rule: 1px solid var(--kb-line);
+  column-fill: balance;
   margin-top: var(--kb-sp-5);
 }
 .kb-cheat > * { break-inside: avoid; }
+
+/* 小节标题：与紧随的内容不分栏断开 */
 .kb-cheat h2 {
   font-family: var(--kb-font-mono);
   font-size: var(--kb-fs-h2);
@@ -528,12 +506,48 @@ mark {
   margin: 0 0 var(--kb-sp-3);
   break-after: avoid;
 }
-.kb-cheat h2:not(:first-child) { margin-top: var(--kb-sp-6); }
+.kb-cheat h2:not(:first-child) { margin-top: var(--kb-sp-7); }
 .kb-cheat p { font-size: var(--kb-fs-meta); margin: 0 0 var(--kb-sp-3); max-width: none; }
-.kb-cheat table { font-size: 12.5px; display: table; width: 100%; }
-.kb-cheat td { padding: 5px 10px 5px 0; }
-.kb-cheat pre { font-size: 12px; }
-.kb-cheat ul { font-size: var(--kb-fs-meta); }
+.kb-cheat ul { font-size: var(--kb-fs-meta); margin: 0; padding-left: 18px; }
+.kb-cheat li { font-size: var(--kb-fs-meta); }
+
+/* ── 代码块：剥掉 expressive-code 的终端拟物外壳 ─────────────────────
+   窄栏里，圆点标题栏 + 横向滚动条 + 大内边距三样叠起来，
+   装饰的体积超过了内容本身。速查页只要代码。            */
+.kb-cheat .expressive-code figcaption,
+.kb-cheat .expressive-code .copy {
+  display: none !important;
+}
+.kb-cheat .expressive-code,
+.kb-cheat .expressive-code figure,
+.kb-cheat .expressive-code figure.frame {
+  border: none !important;
+  margin: 0 0 var(--kb-sp-3) !important;
+  box-shadow: none !important;
+}
+.kb-cheat .expressive-code pre {
+  padding: var(--kb-sp-2) var(--kb-sp-3) !important;
+  border: none !important;
+  border-left: var(--kb-bd-mark) !important;
+  overflow-x: visible !important;
+  font-size: 12px;
+}
+/* 换行而不是横向滚动 —— 窄栏里滚动条比折行更碍事 */
+.kb-cheat .expressive-code pre code,
+.kb-cheat .expressive-code .ec-line,
+.kb-cheat .expressive-code .ec-line .code {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  min-width: 0 !important;
+}
+
+/* ── 表格：更紧，且键不折行 ──────────────────────────────────────────
+   默认排版会把 `Ctrl + Z` 断成两行，正是速查表最不该出现的事。 */
+.kb-cheat table { font-size: 12.5px; display: table; width: 100%; margin: 0 0 var(--kb-sp-3); }
+.kb-cheat th { padding: var(--kb-sp-1) var(--kb-sp-3) var(--kb-sp-1) 0; }
+.kb-cheat td { padding: 4px 10px 4px 0; line-height: 1.5; }
+.kb-cheat td:first-child { white-space: nowrap; width: 1%; }
+.kb-cheat td code { white-space: nowrap; }
 
 @media (max-width: 900px) {
   .kb-cheat { columns: 1; column-rule: none; }

@@ -39,7 +39,8 @@ knowledge-hub 前端的样式真源。实现层的令牌在 [`tokens.css`](./tok
 
 - 圆角恒为 `0`
 - 全站唯一强调色 `--kb-accent`（蓝图青）。`--kb-warn` 是「待写」状态色，**不是第二强调色**，不得用于装饰
-- 每个结构装置都必须编码真实信息。进度条表示真实覆盖率，标签表示真实状态；不存在纯装饰的横线、序号、图标
+- 每个结构装置都必须编码真实信息。标签表示真实状态，分区标题的 `已写/总数` 是真实计数；不存在纯装饰的横线、序号、图标
+- 但「真实」不等于「值得单独占一块版面」。已经在别处表达过的信息再列一遍，就退化成装饰了 —— 总目录的统计条和覆盖度块正是因此被删掉的（`page-specs.md` §1）
 
 ### 原则三：等宽字体是结构信号，不是风格
 
@@ -185,17 +186,12 @@ mono 12px，底 `--kb-sunk`，边 `--kb-bd-line`，**`border-radius: 0`**。
 聚焦时边框转 `--kb-accent`、底转 `--kb-ground`，并 `outline: none`（边框已经是焦点指示）。
 右侧内嵌 `/` 快捷键提示，`pointer-events: none`。
 
-### 6.4 统计条 `.stats`
+### 6.4 ~~统计条~~ / 6.5 ~~覆盖度行~~（已移除）
 
-等宽网格，`gap: 1px` + `--kb-line` 背景。每格：数字 mono 22px 600 `tabular-nums` + 标签 11.5px `--kb-muted`。
-数字可带语义色：`--kb-accent`（正向）、`--kb-warn`（欠账）。
+总目录曾用这两个组件陈列全局统计和分区进度条，已删除 —— 同一份数字在页面上
+重复了三到四次，把条目网格挤出首屏。理由见 `page-specs.md` §1。
 
-### 6.5 覆盖度行 `.cov-r`
-
-三栏 grid：`150px | 1fr | 62px` = 名称 / 进度条 / `已写/总数`。
-
-进度条高 6px，槽 `--kb-sunk`，填充 `--kb-accent`，**无圆角**。
-计数右对齐 `tabular-nums`，分子 `--kb-ink` 600、分母 `--kb-muted`。
+CSS 已一并从 `theme.css` 移除，不留死样式。若日后需要进度条，重新在这里定规格。
 
 ### 6.6 条目格 `.cell`
 
@@ -219,6 +215,11 @@ mono 12px，底 `--kb-sunk`，边 `--kb-bd-line`，**`border-radius: 0`**。
 高亮只用三档：`--kb-accent`（关键字/命令）、`--kb-warn`（字符串/参数）、`--kb-muted`（注释）。
 不要引入完整的语法主题 —— 三档足够，且和整站配色是同一套。
 
+**速查页例外**：`.kb-cheat` 内必须剥掉 expressive-code 的外壳 ——
+隐藏 `figcaption`（终端拟物的圆点标题栏）和 `.copy` 按钮，
+并把 `pre` 改为 `white-space: pre-wrap` 换行而非横向滚动。
+在窄栏里，圆点栏 + 滚动条 + 大内边距三样叠起来，装饰的体积会超过代码本身。
+
 ### 6.9 行内 code
 
 底 `--kb-sunk`，字 `--kb-accent-ink`，`padding: 1px 5px`，无圆角。
@@ -241,6 +242,11 @@ mono 10px 全大写 `ls .06em`，`padding: 1px 6px`，无圆角。
 
 两栏，`gap: 1px` + `--kb-line` 背景。左标「← 上一篇」右标「下一篇 →」，标签 mono 10px 全大写 `--kb-muted`，名称 mono 13.5px 600 `--kb-accent`。
 无上/下篇时保留空格子占位，**不要塌成一栏**。
+
+> Starlight 默认把 `.link-title` 排到 `--sl-text-2xl`，在文末非常突兀 ——
+> 那是一个导航附件，不是内容。它的规则写成 `.link-title:where(.astro-xxx)`，
+> `:where()` 不贡献特异度，所以实际只有 `(0,1,0)`；用
+> `.pagination-links a .link-title`（0,2,1）覆盖即可，不需要 `!important`。
 
 ---
 

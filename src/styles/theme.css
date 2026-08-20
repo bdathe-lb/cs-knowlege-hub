@@ -482,76 +482,99 @@ mark {
 }
 
 /* ==========================================================================
-   11. 速查页（docs/page-specs.md §5）
+   11. 速查页 · 单一密表（docs/page-specs.md §5）
+   分栏流式版式已废弃 —— 块与栏互相打架，小节会被断到下一栏。
+   现在内容在同步时就合并成一张表，页面不再渲染 Markdown，
+   因此也不再需要压制 expressive-code 的那一整套覆盖规则。
    ========================================================================== */
-.kb-cheat {
-  columns: 2;
-  column-gap: 30px;
-  column-rule: 1px solid var(--kb-line);
-  column-fill: balance;
+.kb-sheet {
+  border-collapse: collapse;
+  width: 100%;
   margin-top: var(--kb-sp-5);
 }
-.kb-cheat > * { break-inside: avoid; }
 
-/* 小节标题：与紧随的内容不分栏断开 */
-.kb-cheat h2 {
+/* 分组行：一条粗线起头，等宽全大写 —— 三线表的「顶线」在这里复用为分组分隔 */
+.kb-sheet .grp td {
   font-family: var(--kb-font-mono);
   font-size: var(--kb-fs-h2);
   font-weight: 600;
   letter-spacing: var(--kb-ls-label);
   text-transform: uppercase;
   color: var(--kb-accent);
-  border-bottom: var(--kb-bd-line);
-  padding-bottom: var(--kb-sp-1);
-  margin: 0 0 var(--kb-sp-3);
-  break-after: avoid;
+  border-bottom: var(--kb-bd-th);
+  padding: var(--kb-sp-6) 0 var(--kb-sp-1);
 }
-.kb-cheat h2:not(:first-child) { margin-top: var(--kb-sp-7); }
-.kb-cheat p { font-size: var(--kb-fs-meta); margin: 0 0 var(--kb-sp-3); max-width: none; }
-.kb-cheat ul { font-size: var(--kb-fs-meta); margin: 0; padding-left: 18px; }
-.kb-cheat li { font-size: var(--kb-fs-meta); }
+.kb-sheet tbody > .grp:first-child td { padding-top: 0; }
 
-/* ── 代码块：剥掉 expressive-code 的终端拟物外壳 ─────────────────────
-   窄栏里，圆点标题栏 + 横向滚动条 + 大内边距三样叠起来，
-   装饰的体积超过了内容本身。速查页只要代码。            */
-.kb-cheat .expressive-code figcaption,
-.kb-cheat .expressive-code .copy {
-  display: none !important;
-}
-.kb-cheat .expressive-code,
-.kb-cheat .expressive-code figure,
-.kb-cheat .expressive-code figure.frame {
-  border: none !important;
-  margin: 0 0 var(--kb-sp-3) !important;
-  box-shadow: none !important;
-}
-.kb-cheat .expressive-code pre {
-  padding: var(--kb-sp-2) var(--kb-sp-3) !important;
-  border: none !important;
-  border-left: var(--kb-bd-mark) !important;
-  overflow-x: visible !important;
-  font-size: 12px;
-}
-/* 换行而不是横向滚动 —— 窄栏里滚动条比折行更碍事 */
-.kb-cheat .expressive-code pre code,
-.kb-cheat .expressive-code .ec-line,
-.kb-cheat .expressive-code .ec-line .code {
-  white-space: pre-wrap !important;
-  word-break: break-word;
-  min-width: 0 !important;
+/* 说明行：散文在密表里退居注释位 —— 这是 B 方案自觉付出的代价 */
+.kb-sheet .note td {
+  font-size: var(--kb-fs-meta);
+  color: var(--kb-muted);
+  line-height: 1.6;
+  padding: var(--kb-sp-2) 0 var(--kb-sp-1);
+  border-bottom: none;
 }
 
-/* ── 表格：更紧，且键不折行 ──────────────────────────────────────────
-   默认排版会把 `Ctrl + Z` 断成两行，正是速查表最不该出现的事。 */
-.kb-cheat table { font-size: 12.5px; display: table; width: 100%; margin: 0 0 var(--kb-sp-3); }
-.kb-cheat th { padding: var(--kb-sp-1) var(--kb-sp-3) var(--kb-sp-1) 0; }
-.kb-cheat td { padding: 4px 10px 4px 0; line-height: 1.5; }
-.kb-cheat td:first-child { white-space: nowrap; width: 1%; }
-.kb-cheat td code { white-space: nowrap; }
+/* 条目行 */
+.kb-sheet th[scope='row'] {
+  width: 1%;
+  white-space: nowrap;
+  text-align: left;
+  font-weight: 400;
+  border: none;
+  border-bottom: var(--kb-bd-hair);
+  padding: var(--kb-sp-2) var(--kb-sp-4) var(--kb-sp-2) 0;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: inherit;
+}
+.kb-sheet td {
+  border: none;
+  border-bottom: var(--kb-bd-hair);
+  padding: var(--kb-sp-2) 0;
+  color: var(--kb-ink2);
+  font-size: var(--kb-fs-sm);
+  line-height: 1.55;
+  vertical-align: top;
+}
+.kb-sheet code {
+  font-family: var(--kb-font-mono);
+  font-size: 12.5px;
+  background: var(--kb-sunk);
+  color: var(--kb-accent-ink);
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+.kb-sheet tr:hover th[scope='row'],
+.kb-sheet tr:hover td { background: var(--kb-accent-bg); }
+.kb-sheet .grp:hover td,
+.kb-sheet .note:hover td { background: none; }
 
-@media (max-width: 900px) {
-  .kb-cheat { columns: 1; column-rule: none; }
+.kb-sheet-refs {
+  display: flex;
+  gap: var(--kb-sp-5);
+  align-items: baseline;
+  font-size: var(--kb-fs-sm);
+  margin-top: var(--kb-sp-6);
+  padding-top: var(--kb-sp-3);
+  border-top: var(--kb-bd-line);
+}
+.kb-sheet-refs-l {
+  font-family: var(--kb-font-mono);
+  font-size: var(--kb-fs-th);
+  letter-spacing: var(--kb-ls-th);
+  text-transform: uppercase;
+  color: var(--kb-muted);
+  font-weight: 600;
+}
+.kb-sheet-refs a { color: var(--kb-accent); }
+
+/* 窄屏：命令列允许换行，否则长命令会把说明挤没 */
+@media (max-width: 560px) {
+  .kb-sheet th[scope='row'] { white-space: normal; }
+  .kb-sheet code { white-space: normal; word-break: break-all; }
 }
 @media print {
-  .kb-cheat { columns: 2; }
+  .kb-sheet tr:hover th[scope='row'],
+  .kb-sheet tr:hover td { background: none; }
 }

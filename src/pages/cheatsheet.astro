@@ -2,31 +2,70 @@
 /**
  * 速查页 —— 规范见 docs/page-specs.md §5
  *
- * 和文档页用不同版式：这是「扫一眼就走」的内容，不是顺序阅读。
- * 双栏密排、无 TOC、可直接打印。
+ * 版式是一张密表：左列命令、右列效果、分组用一条粗线隔开。
+ * 打开这一页只有一个动作 —— 找到某个命令然后走，所以扫读密度是唯一指标。
  *
- * 内容由 scripts/sync.mjs 输出到 src/cheatsheets/，不在内容集合里，
- * 因此同一篇笔记只有 /cheatsheet/ 一个 URL。
+ * 结构由 scripts/sync.mjs 从 Markdown 转换而来（原文是分立的代码块 / 表格 /
+ * 段落，合并成一张表不是 CSS 能做的）。这里只负责渲染。
  */
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import kb from '../data/kb.json';
 
-const sheets = import.meta.glob('../cheatsheets/*.md', { eager: true });
-const entries = Object.values(sheets);
-const sheet = entries[0];
-const title = sheet?.frontmatter?.title ?? '速查表';
-const Content = sheet?.Content;
+const sheet = kb.cheats?.['/cheatsheet/'];
+
+/** 把 `反引号` 片段切出来，交替渲染成行内 code */
+const seg = (s) =>
+  String(s ?? '')
+    .split('`')
+    .map((text, i) => ({ text, code: i % 2 === 1 }));
+
+const rowCount = sheet ? sheet.groups.reduce((n, g) => n + g.rows.length, 0) : 0;
 ---
 
-<StarlightPage frontmatter={{ title, tableOfContents: false }}>
-  <p class="kb-meta">分栏密排版式<i>·</i>为「扫一眼就走」优化<i>·</i>可直接打印</p>
-
+<StarlightPage frontmatter={{ title: sheet?.title ?? '速查表', tableOfContents: false }}>
   {
-    Content ? (
-      <div class="kb-cheat sl-markdown-content">
-        <Content />
-      </div>
+    sheet ? (
+      <>
+        <p class="kb-meta">
+          {sheet.groups.length} 组<i>·</i>{rowCount} 条<i>·</i>可直接打印
+        </p>
+
+        <table class="kb-sheet not-content">
+          <tbody>
+            {sheet.groups.map((g) => (
+              <>
+                <tr class="grp"><td colspan="2">{g.name}</td></tr>
+                {g.note && (
+                  <tr class="note">
+                    <td colspan="2">
+                      {seg(g.note).map((p) => (p.code ? <code>{p.text}</code> : p.text))}
+                    </td>
+                  </tr>
+                )}
+                {g.rows.map((r) => (
+                  <tr>
+                    <th scope="row"><code>{r.cmd}</code></th>
+                    <td>{seg(r.desc).map((p) => (p.code ? <code>{p.text}</code> : p.text))}</td>
+                  </tr>
+                ))}
+              </>
+            ))}
+          </tbody>
+        </table>
+
+        {sheet.refs.length > 0 && (
+          <div class="kb-sheet-refs not-content">
+            <span class="kb-sheet-refs-l">参考</span>
+            {sheet.refs.map((r) => (
+              <a href={r.href}>{r.text}</a>
+            ))}
+          </div>
+        )}
+      </>
     ) : (
-      <p class="kb-empty">src/cheatsheets/ 下没有内容 —— 先跑 <code>npm run sync</code>。</p>
+      <p class="kb-empty">
+        没有解析到速查表内容 —— 先跑 <code>npm run sync</code>。
+      </p>
     )
   }
 </StarlightPage>

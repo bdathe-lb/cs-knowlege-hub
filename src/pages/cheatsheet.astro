@@ -19,17 +19,12 @@ const seg = (s) =>
     .split('`')
     .map((text, i) => ({ text, code: i % 2 === 1 }));
 
-const rowCount = sheet ? sheet.groups.reduce((n, g) => n + g.rows.length, 0) : 0;
 ---
 
 <StarlightPage frontmatter={{ title: sheet?.title ?? '速查表', tableOfContents: false }}>
   {
     sheet ? (
       <>
-        <p class="kb-meta">
-          {sheet.groups.length} 组<i>·</i>{rowCount} 条<i>·</i>可直接打印
-        </p>
-
         <table class="kb-sheet not-content">
           <tbody>
             {sheet.groups.map((g) => (
@@ -64,7 +59,7 @@ const rowCount = sheet ? sheet.groups.reduce((n, g) => n + g.rows.length, 0) : 0
       </>
     ) : (
       <p class="kb-empty">
-        没有解析到速查表内容 —— 先跑 <code>npm run sync</code>。
+        没有解析到速查表内容 —— 先跑 <code>npm run sync</code>
       </p>
     )
   }

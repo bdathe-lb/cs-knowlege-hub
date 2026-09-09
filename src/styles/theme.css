@@ -135,6 +135,15 @@ starlight-toc > nav > h2 {
   text-wrap: balance;
 }
 
+/* Starlight 把页标题和正文拆成两个 content-panel，相邻两块之间画一条 hairline。
+   页标题已经自带一条下划线（--kb-bd-rule），于是标题下方成了「线—空带—线」：
+   两条线中间夹着两块 1.5rem 的 padding。去掉后面那条线和它的上边距，
+   间距由标题那块的下 padding 给足（原则一：密度优先）。 */
+.content-panel + .content-panel {
+  border-top: none;
+  padding-top: 0;
+}
+
 /* 小节标题：等宽 · 全大写 · 强调色 —— 本方向的标志 */
 .sl-markdown-content h2 {
   font-family: var(--kb-font-mono);
@@ -282,14 +291,6 @@ starlight-toc a[aria-current='true'] {
   color: var(--kb-accent);
   margin-bottom: var(--kb-sp-2);
 }
-.kb-meta {
-  font-family: var(--kb-font-mono);
-  font-size: var(--kb-fs-meta);
-  color: var(--kb-muted);
-  font-variant-numeric: tabular-nums;
-}
-.kb-meta i { font-style: normal; color: var(--kb-line); margin: 0 var(--kb-sp-2); }
-
 .kb-h2 {
   font-family: var(--kb-font-mono);
   font-size: var(--kb-fs-h2);
@@ -383,7 +384,9 @@ starlight-toc a[aria-current='true'] {
 .kb-table tr.is-todo td { color: var(--kb-muted); }
 .kb-table a { color: inherit; text-decoration: none; display: block; }
 .kb-table tr.is-link:hover td { background: var(--kb-accent-bg); }
-.kb-table code {
+/* 自定义页面的行内 code —— 这些页面不走 Markdown 管线，样式自己给 */
+.kb-table code,
+.kb-empty code {
   font-family: var(--kb-font-mono);
   background: var(--kb-sunk);
   color: var(--kb-accent-ink);
@@ -472,13 +475,6 @@ mark {
   padding: var(--kb-sp-6) 0;
   color: var(--kb-muted);
   font-size: var(--kb-fs-sm);
-}
-.kb-empty code {
-  font-family: var(--kb-font-mono);
-  background: var(--kb-sunk);
-  color: var(--kb-accent-ink);
-  padding: 1px 5px;
-  font-size: 0.9em;
 }
 
 /* ==========================================================================

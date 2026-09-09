@@ -11,7 +11,7 @@ const kb = JSON.parse(fs.readFileSync(new URL('./src/data/kb.json', import.meta.
  *
  * 已知偏差：待写条目不在此列出。Starlight 的侧栏项必须是可跳转链接，
  * 无法渲染「灰化不可点」态。全部 58 个条目（含待写）见总目录页。
- * 后续可通过覆盖 Sidebar 组件补上，见 docs/page-specs.md §6。
+ * 后续可通过覆盖 Sidebar 组件补上，见 docs/page-specs.md §7。
  */
 const sidebar = [
   { label: '总目录', link: '/' },
@@ -20,11 +20,14 @@ const sidebar = [
   ...kb.cats
     .map((c) => {
       const written = c.tools.filter((t) => t.path);
-      // 速查页不在内容集合里（slug 为 null），不进侧栏分组
-      const items = written.filter((t) => t.slug);
       return {
         label: `${c.name} · ${written.length}/${c.tools.length}`,
-        items: items.map((t) => ({ label: t.name, slug: t.slug })),
+        // 速查页有自己的路由，不在内容集合里（slug 为 null），但它确实是这个分区里
+        // 已写的一条 —— 按 url 挂上去。漏掉它，标签的 6/6 下面就只有 5 项，
+        // 数和条目对不上（设计规范 §2 原则二：结构装置必须编码真实信息）。
+        items: written.map((t) =>
+          t.slug ? { label: t.name, slug: t.slug } : { label: t.name, link: t.url }
+        ),
       };
     })
     .filter((g) => g.items.length > 0),

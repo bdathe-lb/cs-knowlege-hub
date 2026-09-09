@@ -7,30 +7,42 @@
 
 ## 现状
 
-站点已跑通。Astro 7 + Starlight 0.41，46 个页面，Pagefind 中文全文搜索。
+站点已跑通。Astro 7 + Starlight 0.41，48 个页面，Pagefind 中文全文搜索。
+源仓库的笔记已全部覆盖 —— 38 篇笔记、16 个图片资源。
 
 ```bash
-npm install
-npm run dev      # http://localhost:4321
-npm run build    # → dist/
+make             # 列出所有目标
+make dev         # http://localhost:4321
+make build       # → dist/
+make preview     # 构建后预览 —— 全文搜索只有这里能用
+make clean       # 删掉同步产物与构建产物
 ```
 
-`dev` / `build` 会先自动执行 `npm run sync`。
+`dev` / `build` 会先自动执行同步。npm 脚本原样保留（`npm run dev` 等都还能用），
+Makefile 只是个入口，另外补上了 npm 脚本没做的两件事：清理生成物，
+以及 `preview` 之前自动 build。
+
+源仓库默认在 `../knowledge-hub`，换位置加一个变量即可：
+
+```bash
+make build KB_SOURCE=/path/to/knowledge-hub
+```
 
 ### 构建流程
 
 ```
 ~/projects/knowledge-hub/          源仓库（只读，唯一真源）
         │
-        ├─ linux-tools/README.md ──┐
-        └─ **/*.md ────────────────┤
+        ├─ linux-tools/README.md ──┐  索引表 → 分区 / 条目 / 待写状态
+        ├─ **/*.md ────────────────┤  38 篇笔记
+        └─ assets/ ────────────────┤  图片
                                    ▼
                           scripts/sync.mjs
                                    │
             ┌──────────────────────┼──────────────────────┐
             ▼                      ▼                      ▼
    src/content/docs/**      src/data/kb.json       public/assets/
-   （注入 frontmatter）      （分区/条目/统计）        （图片）
+   （注入 frontmatter）     （条目 / 速查表）        （图片）
             │                      │
             └──────────┬───────────┘
                        ▼
@@ -47,7 +59,7 @@ npm run build    # → dist/
 
 侧栏只列已写笔记，不含 20 个待写条目 —— Starlight 的侧栏项必须是可跳转链接，
 无法渲染「灰化不可点」态。全部 58 个条目见总目录页。
-补齐需覆盖 Sidebar 组件，见 `docs/page-specs.md` §6。
+补齐需覆盖 Sidebar 组件，见 `docs/page-specs.md` §7。
 
 ### 设计方向
 

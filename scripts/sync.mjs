@@ -41,6 +41,12 @@ if (!fs.existsSync(SRC)) {
   process.exit(1);
 }
 
+/** 行数：末尾单个换行不计。这个口径出现在 docs 里，别改。 */
+const countLines = (text) => {
+  const a = text.split('\n');
+  return a.length && a[a.length - 1] === '' ? a.length - 1 : a.length;
+};
+
 /* ── 1. 解析索引表 ──────────────────────────────────────────────── */
 function parseIndex() {
   const file = path.join(SRC, 'linux-tools/README.md');
@@ -103,7 +109,10 @@ function transform(relPath) {
   body = body.replace(/(?<!!)\[([^\]]+)\]\(([^)]+\.md)(#[^)]*)?\)/g, (m, text, href, hash) => {
     if (/^(https?:|\/)/.test(href)) return m;
     const target = path.normalize(path.join(dir, href));
-    return `[${text}](${toUrl(target)}${hash ?? ''})`;
+    // 速查类笔记不进内容集合，走的是自己的路由。按 toUrl 推出来的地址不存在，
+    // 链过去就是个静默的 404 —— 这里查一下映射表，用它真正的 URL。
+    const url = CHEATSHEETS.get(target) ?? toUrl(target);
+    return `[${text}](${url}${hash ?? ''})`;
   });
 
   const esc = (s) => s.replace(/"/g, '\\"');
@@ -118,7 +127,7 @@ function transform(relPath) {
     title,
     heads,
     intro,
-    lines: raw.split('\n').filter((_, i, a) => i < a.length - 1 || a[i] !== '').length,
+    lines: countLines(raw),
     content: `${fm}\n\n${body}`,
   };
 }

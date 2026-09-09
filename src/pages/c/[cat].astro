@@ -13,16 +13,10 @@ export function getStaticPaths() {
 }
 
 const { cat } = Astro.props;
-const written = cat.tools.filter((t) => t.path).length;
-const pct = Math.round((written / cat.tools.length) * 100);
 ---
 
 <StarlightPage frontmatter={{ title: cat.name, tableOfContents: false }}>
-  <p class="kb-meta">
-    {cat.tools.length} 个条目<i>·</i>{written} 篇已写<i>·</i>覆盖 {pct}%
-  </p>
-
-  <div class="kb-tw not-content" style="margin-top:1.5rem">
+  <div class="kb-tw not-content">
     <table class="kb-table">
       <thead>
         <tr>

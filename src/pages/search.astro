@@ -25,14 +25,9 @@ const INDEX = kb.cats.flatMap((c) =>
     };
   })
 );
-const STATS = kb.stats;
 ---
 
 <StarlightPage frontmatter={{ title: '搜索', tableOfContents: false }}>
-  <p class="kb-meta">
-    检索 {STATS.tools} 个条目<i>·</i>{STATS.written} 篇正文<i>·</i>{STATS.lines.toLocaleString()} 行
-  </p>
-
   <div class="kb-searchbar not-content">
     <input
       id="kb-q"
@@ -139,7 +134,7 @@ const STATS = kb.stats;
     const term = query.trim();
 
     if (!term) {
-      out.innerHTML = `<p class="kb-empty">输入关键词开始搜索。试试 <code>字段</code>、<code>压缩</code>、<code>进程</code>、<code>awk</code>。</p>`;
+      out.innerHTML = `<p class="kb-empty">输入关键词开始搜索。试试 <code>字段</code>、<code>压缩</code>、<code>进程</code>、<code>awk</code></p>`;
       return;
     }
 
@@ -172,17 +167,17 @@ const STATS = kb.stats;
     if (body === null) {
       n.textContent = '不可用';
       box.innerHTML = `<p class="kb-empty">正文索引由 Pagefind 在构建时生成，开发服务器下不可用。
-        跑 <code>npm run build &amp;&amp; npm run preview</code> 查看全文检索效果。</p>`;
+        跑 <code>npm run build &amp;&amp; npm run preview</code> 查看全文检索效果</p>`;
     } else if (!body.length) {
       n.textContent = '0';
-      box.innerHTML = `<p class="kb-empty">正文里没有匹配。</p>`;
+      box.innerHTML = `<p class="kb-empty">正文里没有匹配</p>`;
     } else {
       n.textContent = String(body.length);
       box.innerHTML = body.map(renderHit).join('');
     }
 
     if (!meta.length && (body === null || !body.length)) {
-      out.innerHTML = `<p class="kb-empty">没有匹配。试试 <code>字段</code>、<code>压缩</code>、<code>进程</code>、<code>awk</code>。</p>`;
+      out.innerHTML = `<p class="kb-empty">没有匹配。试试 <code>字段</code>、<code>压缩</code>、<code>进程</code>、<code>awk</code></p>`;
     }
   }
 

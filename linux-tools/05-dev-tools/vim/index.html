@@ -1,0 +1,919 @@
+<!DOCTYPE html><html lang="zh-CN" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-vdxcvpsm"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Vim | knowledge-hub</title><link rel="canonical" href="https://cs.bdathe.wiki/linux-tools/05-dev-tools/vim/"/><link rel="sitemap" href="/sitemap-index.xml"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap"/><link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.2.3"/><meta name="generator" content="Starlight v0.41.7"/><meta property="og:title" content="Vim"/><meta property="og:type" content="article"/><meta property="og:url" content="https://cs.bdathe.wiki/linux-tools/05-dev-tools/vim/"/><meta property="og:locale" content="zh-CN"/><meta property="og:description" content="Vim 是一个高效的模态文本编辑器，通过区分不同的编辑模式，实现快速的文本操作，避免频繁使用鼠标和方向键。"/><meta property="og:site_name" content="knowledge-hub"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="Vim 是一个高效的模态文本编辑器，通过区分不同的编辑模式，实现快速的文本操作，避免频繁使用鼠标和方向键。"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/_astro/middleware.Buvyj4NK.css"><script type="module" src="/_astro/page.Dwipeu-R.js"></script></head><body class="astro-vdxcvpsm"><a class="sl-skip-link astro-vxeigawq" href="#_top">跳转到内容</a><div class="page sl-flex astro-gqpr5s5a"><header class="header astro-gqpr5s5a"><div class="header astro-nczgtkxc"><div class="title-wrapper sl-flex astro-nczgtkxc"><a href="/" class="site-title sl-flex astro-clw6ags5"><span class="astro-clw6ags5" translate="no">knowledge-hub</span></a></div><div class="sl-flex print:hidden astro-nczgtkxc"><site-search class="astro-nczgtkxc astro-r5ar4xm7" data-translations="{&quot;placeholder&quot;:&quot;搜索&quot;}"><button data-open-modal disabled aria-label="搜索" aria-keyshortcuts="Control+K" class="astro-r5ar4xm7"><svg aria-hidden="true" class="astro-r5ar4xm7 astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-r5ar4xm7" aria-hidden="true">搜索</span><kbd class="sl-hidden md:sl-flex astro-r5ar4xm7" style="display: none;"><kbd class="astro-r5ar4xm7">Ctrl</kbd><kbd class="astro-r5ar4xm7">K</kbd></kbd></button><dialog style="padding:0" aria-label="搜索" class="astro-r5ar4xm7"><div class="dialog-frame sl-flex astro-r5ar4xm7"><button data-close-modal class="sl-flex md:sl-hidden astro-r5ar4xm7">取消</button><div class="search-container astro-r5ar4xm7"><div id="starlight__search" class="astro-r5ar4xm7"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/_astro/Search.astro_astro_type_script_index_0_lang.B-Vh4ymV.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-nczgtkxc"><div class="sl-flex social-icons astro-nczgtkxc"></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-r2p65idu"><span class="sr-only astro-r2p65idu">选择主题</span><svg aria-hidden="true" class="icon label-icon astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-r2p65idu"><option value="dark" class="astro-r2p65idu">深色</option><option value="light" class="astro-r2p65idu">浅色</option><option value="auto" selected class="astro-r2p65idu">自动</option></select><svg aria-hidden="true" class="icon caret astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-gqpr5s5a" aria-label="主要"><starlight-menu-button class="print:hidden astro-vvx7mffu"><button aria-expanded="false" aria-label="菜单" aria-controls="starlight__sidebar" class="sl-flex md:sl-hidden astro-vvx7mffu"><svg aria-hidden="true" class="open-menu astro-vvx7mffu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-vvx7mffu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg></button></starlight-menu-button><script type="module">var e=class extends HTMLElement{btn=this.querySelector(`button`);constructor(){super(),this.btn.addEventListener(`click`,()=>this.toggleExpanded());let e=this.closest(`nav`);e&&e.addEventListener(`keyup`,e=>this.closeOnEscape(e)),matchMedia(`(min-width: 50em)`).addEventListener(`change`,()=>this.setExpanded(!1))}setExpanded(e){this.setAttribute(`aria-expanded`,String(e)),document.body.toggleAttribute(`data-mobile-menu-expanded`,e),document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}toggleExpanded(){this.setExpanded(this.getAttribute(`aria-expanded`)!==`true`)}closeOnEscape(e){e.code===`Escape`&&(this.setExpanded(!1),this.btn.focus())}};customElements.define(`starlight-menu-button`,e);</script><div id="starlight__sidebar" class="sidebar-pane astro-gqpr5s5a"><div class="sidebar-content sl-flex astro-gqpr5s5a"><sl-sidebar-state-persist data-hash="12q47oj" class="astro-f5yvicm7"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-ojxuodky"><li class="astro-ojxuodky"><a href="/" class="large astro-ojxuodky"><span class="astro-ojxuodky">总目录</span></a></li><li class="astro-ojxuodky"><a href="/cheatsheet/" class="large astro-ojxuodky"><span class="astro-ojxuodky">速查表</span></a></li><li class="astro-ojxuodky"><a href="/search/" class="large astro-ojxuodky"><span class="astro-ojxuodky">搜索</span></a></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">文件与目录操作 · 13/13</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/ls/" class="astro-ojxuodky"><span class="astro-ojxuodky">ls</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/cd/" class="astro-ojxuodky"><span class="astro-ojxuodky">cd</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/pwd/" class="astro-ojxuodky"><span class="astro-ojxuodky">pwd</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/cp/" class="astro-ojxuodky"><span class="astro-ojxuodky">cp</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/mv/" class="astro-ojxuodky"><span class="astro-ojxuodky">mv</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/mkdir/" class="astro-ojxuodky"><span class="astro-ojxuodky">mkdir</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/rmdir/" class="astro-ojxuodky"><span class="astro-ojxuodky">rmdir</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/touch/" class="astro-ojxuodky"><span class="astro-ojxuodky">touch</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/rm/" class="astro-ojxuodky"><span class="astro-ojxuodky">rm</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/ln/" class="astro-ojxuodky"><span class="astro-ojxuodky">ln</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/less/" class="astro-ojxuodky"><span class="astro-ojxuodky">less</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/file/" class="astro-ojxuodky"><span class="astro-ojxuodky">file</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/tree/" class="astro-ojxuodky"><span class="astro-ojxuodky">tree</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">查找与文本处理 · 13/13</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/find/" class="astro-ojxuodky"><span class="astro-ojxuodky">find</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/locate/" class="astro-ojxuodky"><span class="astro-ojxuodky">locate</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/xargs/" class="astro-ojxuodky"><span class="astro-ojxuodky">xargs</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/which/" class="astro-ojxuodky"><span class="astro-ojxuodky">which</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/grep/" class="astro-ojxuodky"><span class="astro-ojxuodky">grep</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/awk/" class="astro-ojxuodky"><span class="astro-ojxuodky">awk</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/sed/" class="astro-ojxuodky"><span class="astro-ojxuodky">sed</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/cut/" class="astro-ojxuodky"><span class="astro-ojxuodky">cut</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/tr/" class="astro-ojxuodky"><span class="astro-ojxuodky">tr</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/paste/" class="astro-ojxuodky"><span class="astro-ojxuodky">paste</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/sort/" class="astro-ojxuodky"><span class="astro-ojxuodky">sort</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/uniq/" class="astro-ojxuodky"><span class="astro-ojxuodky">uniq</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/tee/" class="astro-ojxuodky"><span class="astro-ojxuodky">tee</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">文件打包与压缩 · 5/5</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/tar/" class="astro-ojxuodky"><span class="astro-ojxuodky">tar</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/gzip/" class="astro-ojxuodky"><span class="astro-ojxuodky">gzip</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/bzip2/" class="astro-ojxuodky"><span class="astro-ojxuodky">bzip2</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/xz/" class="astro-ojxuodky"><span class="astro-ojxuodky">xz</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/zip-unzip/" class="astro-ojxuodky"><span class="astro-ojxuodky">zip</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">进程与系统资源 · 11/11</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/04-system/ps/" class="astro-ojxuodky"><span class="astro-ojxuodky">ps</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/htop/" class="astro-ojxuodky"><span class="astro-ojxuodky">htop</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/kill/" class="astro-ojxuodky"><span class="astro-ojxuodky">kill</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/bg-fg/" class="astro-ojxuodky"><span class="astro-ojxuodky">bg / fg</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/df/" class="astro-ojxuodky"><span class="astro-ojxuodky">df</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/free/" class="astro-ojxuodky"><span class="astro-ojxuodky">free</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/du/" class="astro-ojxuodky"><span class="astro-ojxuodky">du</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/mount/" class="astro-ojxuodky"><span class="astro-ojxuodky">mount</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/lsblk/" class="astro-ojxuodky"><span class="astro-ojxuodky">lsblk</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/blkid/" class="astro-ojxuodky"><span class="astro-ojxuodky">blkid</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/parallel/" class="astro-ojxuodky"><span class="astro-ojxuodky">parallel</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">编程与开发工具 · 7/7</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/vim/" aria-current="page" class="astro-ojxuodky"><span class="astro-ojxuodky">vim</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/git/" class="astro-ojxuodky"><span class="astro-ojxuodky">git</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/make/" class="astro-ojxuodky"><span class="astro-ojxuodky">make</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/gdb/" class="astro-ojxuodky"><span class="astro-ojxuodky">gdb</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/valgrind/" class="astro-ojxuodky"><span class="astro-ojxuodky">valgrind</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/strace/" class="astro-ojxuodky"><span class="astro-ojxuodky">strace</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/tmux/" class="astro-ojxuodky"><span class="astro-ojxuodky">tmux</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">网络工具 · 4/4</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/06-network/wget/" class="astro-ojxuodky"><span class="astro-ojxuodky">wget</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ssh/" class="astro-ojxuodky"><span class="astro-ojxuodky">ssh</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ping/" class="astro-ojxuodky"><span class="astro-ojxuodky">ping</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ss/" class="astro-ojxuodky"><span class="astro-ojxuodky">ss</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">计算机基础 · 6/6</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/cs-basics/shell/glob/" class="astro-ojxuodky"><span class="astro-ojxuodky">glob</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/regex/" class="astro-ojxuodky"><span class="astro-ojxuodky">regex</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/stdio/" class="astro-ojxuodky"><span class="astro-ojxuodky">stdio</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/terminal-colors/" class="astro-ojxuodky"><span class="astro-ojxuodky">terminal-colors</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/network/linux-network-programming/" class="astro-ojxuodky"><span class="astro-ojxuodky">socket</span></a></li><li class="astro-ojxuodky"><a href="/cheatsheet/" class="astro-ojxuodky"><span class="astro-ojxuodky">cheatsheet</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-b5gddk54"><div class="social-icons astro-b5gddk54"></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-r2p65idu"><span class="sr-only astro-r2p65idu">选择主题</span><svg aria-hidden="true" class="icon label-icon astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-r2p65idu"><option value="dark" class="astro-r2p65idu">深色</option><option value="light" class="astro-r2p65idu">浅色</option><option value="auto" selected class="astro-r2p65idu">自动</option></select><svg aria-hidden="true" class="icon caret astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></div></nav><div class="main-frame astro-gqpr5s5a"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-abfeecmu"><aside class="right-sidebar-container print:hidden astro-abfeecmu"><div class="right-sidebar astro-abfeecmu"><div class="lg:sl-hidden astro-q5mffni3"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-5ulgm6bh"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-5ulgm6bh"><details id="starlight__mobile-toc" class="astro-5ulgm6bh"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-5ulgm6bh"><span class="toggle sl-flex astro-5ulgm6bh">本页内容<svg aria-hidden="true" class="caret astro-5ulgm6bh astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-5ulgm6bh"></span></summary><div class="dropdown astro-5ulgm6bh"><ul class="isMobile astro-cxyftcne" style="--depth: 0;"><li style="--depth: 0;" class="astro-cxyftcne"><a href="#_top" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">概述</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#简介" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">简介</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#基本语法" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">基本语法</span></a><ul class="isMobile astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#vim-哲学" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">Vim 哲学</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#缓冲区窗口标签页" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">缓冲区、窗口、标签页</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#寄存器" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">寄存器</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#常用命令" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">常用命令</span></a><ul class="isMobile astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#模式切换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">模式切换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#常用操作" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">常用操作</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#搜索和替换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">搜索和替换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#常用命令模式指令" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">常用命令模式指令</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#使用示例" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">使用示例</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#参考资料" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">参考资料</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.BcSo_yiZ.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-q5mffni3"><div class="sl-container astro-q5mffni3"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">本页内容</h2><ul class="astro-cxyftcne" style="--depth: 0;"><li style="--depth: 0;" class="astro-cxyftcne"><a href="#_top" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">概述</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#简介" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">简介</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#基本语法" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">基本语法</span></a><ul class="astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#vim-哲学" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">Vim 哲学</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#缓冲区窗口标签页" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">缓冲区、窗口、标签页</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#寄存器" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">寄存器</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#常用命令" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">常用命令</span></a><ul class="astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#模式切换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">模式切换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#常用操作" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">常用操作</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#搜索和替换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">搜索和替换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#常用命令模式指令" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">常用命令模式指令</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#使用示例" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">使用示例</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#参考资料" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">参考资料</span></a></li></ul></nav></starlight-toc><script type="module" src="/_astro/TableOfContents.astro_astro_type_script_index_0_lang.Csloo1VZ.js"></script></div></div></div></aside><div class="main-pane astro-abfeecmu"><main data-pagefind-body class="astro-vdxcvpsm" lang="zh-CN" dir="ltr"><div class="content-panel astro-oil7k7jf"><div class="sl-container astro-oil7k7jf"><h1 id="_top" class="astro-2sm4b3ln">Vim</h1></div></div><div class="content-panel astro-oil7k7jf"><div class="sl-container astro-oil7k7jf"><div class="sl-markdown-content"><div class="sl-heading-wrapper level-h2"><h2 id="简介">简介</h2><a class="sl-anchor-link" href="#简介"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “简介”</span></a></div>
+<p>Vim 是一个高效的模态文本编辑器，通过区分不同的编辑模式，实现快速的文本操作，避免频繁使用鼠标和方向键。</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="基本语法">基本语法</h2><a class="sl-anchor-link" href="#基本语法"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “基本语法”</span></a></div>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.w36nc.css"><script type="module" src="/_astro/ec.0vx5m.js"></script><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">vim</span><span style="--0:#D6DEEB;--1:#403F53"> [选项] [文件名]</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="vim [选项] [文件名]"><div></div></button></div></figure></div>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文件名</td>
+<td>要编辑的文件</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="vim-哲学">Vim 哲学</h3><a class="sl-anchor-link" href="#vim-哲学"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Vim 哲学”</span></a></div>
+<p>Vim 采用模式编辑的理念，按键在不同模式下有不同的作用：</p>
+<ul>
+<li><strong>普通模式</strong>：用于浏览文件，执行各种命令，如 <code dir="auto">dd</code>、<code dir="auto">yy</code>、<code dir="auto">p</code>、<code dir="auto">u</code></li>
+<li><strong>插入模式</strong>：用于输入文本，像普通编辑器一样打字</li>
+<li><strong>替换模式</strong>：类似插入模式，但新字符会替换旧字符（逐个替换）</li>
+<li><strong>可视模式</strong>：用于选择一段文本以进行操作（删除、复制、缩进等）</li>
+<li><strong>命令模式</strong>：用于执行冒号命令，如 <code dir="auto">:w</code> 保存、<code dir="auto">:s</code> 查找替换等</li>
+</ul>
+<div class="sl-heading-wrapper level-h3"><h3 id="缓冲区窗口标签页">缓冲区、窗口、标签页</h3><a class="sl-anchor-link" href="#缓冲区窗口标签页"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “缓冲区、窗口、标签页”</span></a></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="缓冲区buffer">缓冲区（Buffer）</h4><a class="sl-anchor-link" href="#缓冲区buffer"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “缓冲区（Buffer）”</span></a></div>
+<ul>
+<li><strong>定义</strong>：当在 Vim 中打开一个文件时，Vim 就会为它在内存中创建一个缓冲区，并将文件从磁盘中读取到缓冲区中。Vim 的操作实际是在操作缓冲区，保存时才写回磁盘。</li>
+<li><strong>特点</strong>：
+<ul>
+<li>每个文件对应一个缓冲区</li>
+<li>即使缓冲区没有在窗口中显示，它依然存在于内存中</li>
+</ul>
+</li>
+<li><strong>相关命令</strong>：
+<ul>
+<li><code dir="auto">:ls</code> 或 <code dir="auto">:buffers</code>：列出所有缓冲区</li>
+<li><code dir="auto">:b &lt;num&gt;</code>：跳转到编号为 <code dir="auto">&lt;num&gt;</code> 的缓冲区</li>
+<li><code dir="auto">:bd</code>：删除当前的缓冲区</li>
+<li><code dir="auto">:bn</code> / <code dir="auto">:bp</code>：切换下一个 / 上一个缓冲区</li>
+</ul>
+</li>
+</ul>
+<div class="sl-heading-wrapper level-h4"><h4 id="窗口window">窗口（Window）</h4><a class="sl-anchor-link" href="#窗口window"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “窗口（Window）”</span></a></div>
+<ul>
+<li><strong>定义</strong>：Vim 的窗口是对缓冲区内容的一个“视图”，可以理解为“查看缓冲区的窗口”。在一个 Vim 实例中可以打开多个窗口，每个窗口可以显示同一个或不同的缓冲区。</li>
+<li><strong>特点</strong>：
+<ul>
+<li>一个窗口只能显示一个缓冲区，但一个缓冲区可以被多个窗口同时显示</li>
+<li>窗口可以被分割（水平 / 垂直），形成多个子窗口</li>
+</ul>
+</li>
+<li><strong>相关命令</strong>：
+<ul>
+<li><code dir="auto">:split</code>（或 <code dir="auto">:sp</code>）：水平分割窗口</li>
+<li><code dir="auto">:vsplit</code>（或 <code dir="auto">:vsp</code>）：垂直分割窗口</li>
+<li><code dir="auto">&lt;Ctrl-w&gt; h/j/k/l</code>：在窗口之间切换</li>
+<li><code dir="auto">:close</code>：关闭当前窗口</li>
+<li><code dir="auto">:only</code>：关闭其他窗口，只保留当前</li>
+</ul>
+</li>
+</ul>
+<div class="sl-heading-wrapper level-h4"><h4 id="标签页tab-page">标签页（Tab Page）</h4><a class="sl-anchor-link" href="#标签页tab-page"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “标签页（Tab Page）”</span></a></div>
+<ul>
+<li><strong>定义</strong>：标签页是窗口的集合。每个标签页可以包含一个或多个窗口，它们的布局是独立的，可以理解为“一组窗口的容器”。</li>
+<li><strong>特点</strong>：
+<ul>
+<li>每个标签页可以包含多个窗口，切换标签页时会整体切换窗口布局</li>
+<li>不同标签页之间互不干扰，可以作为“工作区”使用</li>
+</ul>
+</li>
+<li><strong>相关命令：</strong>
+<ul>
+<li><code dir="auto">:tabnew</code>：新建一个标签页</li>
+<li><code dir="auto">:tabs</code>：列出所有标签页</li>
+<li><code dir="auto">:tabnext</code> 或 <code dir="auto">gt</code>：切换到下一个标签页</li>
+<li><code dir="auto">:tabprev</code> 或 <code dir="auto">gT</code>：切换到上一个标签页</li>
+<li><code dir="auto">:tabclose</code>：关闭当前标签页</li>
+</ul>
+</li>
+</ul>
+<div class="sl-heading-wrapper level-h4"><h4 id="三者关系">三者关系</h4><a class="sl-anchor-link" href="#三者关系"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “三者关系”</span></a></div>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">标签页</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">└── 窗口</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">    </span></span><span style="--0:#d6deeb;--1:#403f53">└── 缓冲区</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="标签页└── 窗口    └── 缓冲区"><div></div></button></div></figure></div>
+<ul>
+<li>一个标签页中可以有多个窗口</li>
+<li>一个窗口中显示一个缓冲区</li>
+<li>一个缓冲区可以在多个窗口中同时显示</li>
+</ul>
+<div class="sl-heading-wrapper level-h3"><h3 id="寄存器">寄存器</h3><a class="sl-anchor-link" href="#寄存器"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “寄存器”</span></a></div>
+<p>寄存器就是 Vim 里的“剪贴板”，可以存放文本（复制、剪切、宏录制等内容），Vim 有多个寄存器，支持多份内容同时存储。</p>
+<div class="sl-heading-wrapper level-h4"><h4 id="常用寄存器">常用寄存器</h4><a class="sl-anchor-link" href="#常用寄存器"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “常用寄存器”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>寄存器名</th>
+<th>含义与用途</th>
+<th>使用示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">""</code></td>
+<td><strong>默认寄存器</strong>，存放最近一次 <code dir="auto">yank</code> 或 <code dir="auto">delete</code></td>
+<td><code dir="auto">p</code> 粘贴默认寄存器内容</td>
+</tr>
+<tr>
+<td><code dir="auto">"0</code></td>
+<td><strong>yank 寄存器</strong>，只存放最近一次 <code dir="auto">yank</code>（复制）</td>
+<td><code dir="auto">"0p</code> 粘贴最后复制内容</td>
+</tr>
+<tr>
+<td><code dir="auto">"+</code></td>
+<td><strong>系统剪贴板寄存器</strong>（需要支持）</td>
+<td><code dir="auto">"+y</code> 复制到系统剪贴板</td>
+</tr>
+<tr>
+<td><code dir="auto">"-</code></td>
+<td><strong>黑洞寄存器</strong>，删除但不保存内容，避免污染其他寄存器</td>
+<td><code dir="auto">"_d</code> 删除但不存寄存器</td>
+</tr>
+<tr>
+<td><code dir="auto">"1</code>–<code dir="auto">"9</code></td>
+<td><strong>编号寄存器</strong>，存放删除操作的历史</td>
+<td><code dir="auto">"1p</code> 粘贴最近删除的内容</td>
+</tr>
+<tr>
+<td><code dir="auto">"a</code>–<code dir="auto">"z</code></td>
+<td><strong>命名寄存器</strong>，可手动存储和调用文本</td>
+<td><code dir="auto">"ayy</code> 复制到寄存器 a</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="寄存器使用">寄存器使用</h4><a class="sl-anchor-link" href="#寄存器使用"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “寄存器使用”</span></a></div>
+<ul>
+<li>查看寄存器内容
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:registers</span><span style="--0:#919F9F;--1:#5F636F">     " 查看所有寄存器及其内容</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:reg a </span><span style="--0:#7FDBCA;--1:#096E72">+</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#F78C6C;--1:#AA0982">0</span><span style="--0:#919F9F;--1:#5F636F">     " 查看寄存器 a、+、0 的内容</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code=":registers     &quot; 查看所有寄存器及其内容:reg a + 0     &quot; 查看寄存器 a、+、0 的内容"><div></div></button></div></figure></div>
+</li>
+<li>复制到指定寄存器
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F">"ayy     " 把当前行复制到寄存器 a</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="&quot;ayy     &quot; 把当前行复制到寄存器 a"><div></div></button></div></figure></div>
+</li>
+<li>删除到指定寄存器
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F">"adw     " 删除一个单词并保存到寄存器 a</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F">"_dd     " 删除一行但不保存（黑洞寄存器）</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="&quot;adw     &quot; 删除一个单词并保存到寄存器 a&quot;_dd     &quot; 删除一行但不保存（黑洞寄存器）"><div></div></button></div></figure></div>
+</li>
+<li>粘贴指定寄存器内容
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F">"ap      " 将寄存器 a 的内容粘贴在光标后</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="&quot;ap      &quot; 将寄存器 a 的内容粘贴在光标后"><div></div></button></div></figure></div>
+</li>
+<li>使用系统剪贴板
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F">"+y      " 复制到系统剪贴板</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F">"+p      " 从系统剪贴板粘贴</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="&quot;+y      &quot; 复制到系统剪贴板&quot;+p      &quot; 从系统剪贴板粘贴"><div></div></button></div></figure></div>
+<blockquote>
+<p>要求 Vim 支持系统剪贴板，可用 <code dir="auto">:version</code> 查看是否有 <code dir="auto">+clipboard</code>。</p>
+</blockquote>
+</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="常用命令">常用命令</h2><a class="sl-anchor-link" href="#常用命令"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “常用命令”</span></a></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="模式切换">模式切换</h3><a class="sl-anchor-link" href="#模式切换"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “模式切换”</span></a></div>
+<p><img src="/assets/vim%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2.png" alt="vim模式切换.png"></p>
+<div class="sl-heading-wrapper level-h4"><h4 id="普通模式---插入模式">普通模式 -&gt; 插入模式</h4><a class="sl-anchor-link" href="#普通模式---插入模式"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “普通模式 -&gt; 插入模式”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">i</code></td>
+<td style="text-align: center">在光标前插入</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">a</code></td>
+<td style="text-align: center">在光标后插入</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">I</code></td>
+<td style="text-align: center">在当前行首插入</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">A</code></td>
+<td style="text-align: center">在当前行末插入</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">o</code></td>
+<td style="text-align: center">在当前行下方新开一行并插入</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">O</code></td>
+<td style="text-align: center">在当前行上方新开一行并插入</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="普通模式---替换模式">普通模式 -&gt; 替换模式</h4><a class="sl-anchor-link" href="#普通模式---替换模式"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “普通模式 -&gt; 替换模式”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">r</code></td>
+<td style="text-align: center">进入替换模式，只取代光标所在的那一个字符一次</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">R</code></td>
+<td style="text-align: center">进入替换模式，会一直取代光标所在的字符，直到按下 ESC 为止</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="普通模式---可视模式">普通模式 -&gt; 可视模式</h4><a class="sl-anchor-link" href="#普通模式---可视模式"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “普通模式 -&gt; 可视模式”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">v</code></td>
+<td style="text-align: center">进入字符选择可视模式</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">V</code></td>
+<td style="text-align: center">进入行选择可视模式</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;Ctrl-v&gt;</code></td>
+<td style="text-align: center">进入块选择（列选择）模式</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="普通模式---命令模式">普通模式 -&gt; 命令模式</h4><a class="sl-anchor-link" href="#普通模式---命令模式"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “普通模式 -&gt; 命令模式”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">:</code></td>
+<td style="text-align: center">执行命令（保存、退出、设置等）</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">/</code></td>
+<td style="text-align: center">向前查找</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">?</code></td>
+<td style="text-align: center">向后查找</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="常用操作">常用操作</h3><a class="sl-anchor-link" href="#常用操作"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “常用操作”</span></a></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="屏幕翻页">屏幕翻页</h4><a class="sl-anchor-link" href="#屏幕翻页"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “屏幕翻页”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;Ctrl-f&gt;</code></td>
+<td style="text-align: center">向下翻页</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;Ctrl-b&gt;</code></td>
+<td style="text-align: center">向上翻页</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="motion">Motion</h4><a class="sl-anchor-link" href="#motion"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “Motion”</span></a></div>
+<p>Motion 可以进行光标移动，其核心作用是在文本中指定一个范围，配合操作符（如 <code dir="auto">d</code>、<code dir="auto">c</code>、<code dir="auto">y</code> 等）来操作这段文本。常用 motion：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">h</code></td>
+<td>光标向左移动一个字符</td>
+</tr>
+<tr>
+<td><code dir="auto">j</code></td>
+<td>光标向下移动一个字符</td>
+</tr>
+<tr>
+<td><code dir="auto">k</code></td>
+<td>光标向上移动一个字符</td>
+</tr>
+<tr>
+<td><code dir="auto">l</code></td>
+<td>光标向右移动一个字符</td>
+</tr>
+<tr>
+<td><code dir="auto">0</code></td>
+<td>光标移动到该行的行首，相当于 <code dir="auto">&lt;Home&gt;</code></td>
+</tr>
+<tr>
+<td><code dir="auto">$</code></td>
+<td>光标移动到该行的末尾，相当于 <code dir="auto">&lt;End&gt;</code></td>
+</tr>
+<tr>
+<td><code dir="auto">w</code></td>
+<td>光标移动到下一个单词的开头</td>
+</tr>
+<tr>
+<td><code dir="auto">e</code></td>
+<td>光标移动到当前/下一个单词的结尾</td>
+</tr>
+<tr>
+<td><code dir="auto">b</code></td>
+<td>光标移动到前一个单词的开头</td>
+</tr>
+<tr>
+<td><code dir="auto">ge</code></td>
+<td>光标移动到前一个单词的结尾</td>
+</tr>
+<tr>
+<td><code dir="auto">G</code></td>
+<td>光标移动到文件的最后一行</td>
+</tr>
+<tr>
+<td><code dir="auto">gg</code></td>
+<td>光标移动到文件的第一行</td>
+</tr>
+<tr>
+<td><code dir="auto">%</code></td>
+<td>光标移动到匹配的括号</td>
+</tr>
+<tr>
+<td><code dir="auto">{</code></td>
+<td>移动到上一个段落开头</td>
+</tr>
+<tr>
+<td><code dir="auto">}</code></td>
+<td>移动到下一个段落开头</td>
+</tr>
+</tbody>
+</table>
+<p>其他移动指令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">&lt;num&gt; h/j/k/l</code></td>
+<td>光标向左/下/上/右移动 <code dir="auto">num</code> 行</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;num&gt;&lt;Enter&gt;</code></td>
+<td>光标向下移动 <code dir="auto">num</code> 行</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;num&gt;G</code></td>
+<td>光标移动到文件的第 <code dir="auto">&lt;num&gt;</code> 行</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="删除复制变更">删除、复制、变更</h4><a class="sl-anchor-link" href="#删除复制变更"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “删除、复制、变更”</span></a></div>
+<p>Vim 中对文件进行删除、复制、变更等操作有一个统一的格式：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">operator [number] motion</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="operator [number] motion"><div></div></button></div></figure></div>
+<ul>
+<li>operator：表示要对选定文本执行的操作
+<ul>
+<li><code dir="auto">d</code> – 删除（delete）</li>
+<li><code dir="auto">y</code> – 复制（yank）</li>
+<li><code dir="auto">c</code> – 更改（change）</li>
+<li><code dir="auto">&gt;</code> – 右缩进</li>
+<li><code dir="auto">&lt;</code> – 左缩进</li>
+<li><code dir="auto">=</code> – 自动缩进</li>
+</ul>
+</li>
+<li>number：可选的数字，表示重复操作的次数</li>
+<li>motion：表示操作范围的移动方式</li>
+</ul>
+<blockquote>
+<p>注意：<code dir="auto">2dw</code> 和 <code dir="auto">d2w</code> 效果相同，Vim 会把数字自动识别为作用于 motion 的重复。</p>
+</blockquote>
+<p><strong>删除操作</strong></p>
+<p>普通命令：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">x</code></td>
+<td style="text-align: center">删除光标后的字符，相当于 <code dir="auto">&lt;Delete&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">X</code></td>
+<td style="text-align: center">删除光标前的字符，相当于 <code dir="auto">&lt;Backspace&gt;</code></td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;num&gt;x/X</code></td>
+<td style="text-align: center">删除光标后/前连续 <code dir="auto">&lt;num&gt;</code> 个字符</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">dd</code></td>
+<td style="text-align: center">删除光标所在整行（包括换行符），并放进剪贴板</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;num&gt;dd</code></td>
+<td style="text-align: center">删除光标所在的向下 <code dir="auto">&lt;num&gt;</code> 行（包括换行符），并放进剪贴板</td>
+</tr>
+</tbody>
+</table>
+<p>操作符命令：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">dw</code></td>
+<td style="text-align: center">删除从当前光标位置到下一个单词开头之间的内容</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">de</code></td>
+<td style="text-align: center">删除从当前光标位置到当前或下一个单词末尾之间的内容</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">d$</code></td>
+<td style="text-align: center">删除从当前光标位置到该行行尾之间的所有内容</td>
+</tr>
+</tbody>
+</table>
+<p><strong>复制操作</strong></p>
+<p>普通命令：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">yy</code></td>
+<td style="text-align: center">复制光标所在那一行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;num&gt;yy</code></td>
+<td style="text-align: center">复制光标所在的向下 <code dir="auto">num</code> 行</td>
+</tr>
+</tbody>
+</table>
+<p>操作符命令：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">y$</code></td>
+<td style="text-align: center">复制光标所在字符到该行行尾的所有文本</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">yG</code></td>
+<td style="text-align: center">复制光标所在行到文件最后一行的所有文本</td>
+</tr>
+</tbody>
+</table>
+<p><strong>变更操作</strong></p>
+<p>变更是指删除指定范围内容并进入插入模式。</p>
+<p>普通命令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">cc</code></td>
+<td>更改整行的文本（删除整行后进入插入模式）</td>
+</tr>
+<tr>
+<td><code dir="auto">C</code></td>
+<td>更改光标至行尾的文本</td>
+</tr>
+<tr>
+<td><code dir="auto">s</code></td>
+<td>更改光标所在的一个字符，并进入插入模式</td>
+</tr>
+<tr>
+<td><code dir="auto">S</code></td>
+<td>更改整行的文本，等价于 <code dir="auto">cc</code></td>
+</tr>
+</tbody>
+</table>
+<p>操作符命令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">c$</code></td>
+<td>更改到行尾</td>
+</tr>
+<tr>
+<td><code dir="auto">c0</code></td>
+<td>更改到行首</td>
+</tr>
+<tr>
+<td><code dir="auto">c%</code></td>
+<td>更改括号间的内容</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="粘贴">粘贴</h4><a class="sl-anchor-link" href="#粘贴"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “粘贴”</span></a></div>
+<p>粘贴文本的来源：最近一次 yank 或 delete。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">p</code></td>
+<td style="text-align: center">将复制的文本粘贴到光标所在的下一行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">P</code></td>
+<td style="text-align: center">将复制的文本粘贴到光标所在的上一行</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="缩进">缩进</h4><a class="sl-anchor-link" href="#缩进"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “缩进”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&gt;&gt;</code></td>
+<td style="text-align: center">当前行向右缩进一次</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;&lt;</code></td>
+<td style="text-align: center">当前行向左缩进一次</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">n&gt;&gt;</code></td>
+<td style="text-align: center">将当前行及下面 <code dir="auto">n-1</code> 行向右缩进</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">n&lt;&lt;</code></td>
+<td style="text-align: center">将当前行及下面 <code dir="auto">n-1</code> 行向左缩进</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="撤销和重做">撤销和重做</h4><a class="sl-anchor-link" href="#撤销和重做"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “撤销和重做”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">u</code></td>
+<td>撤销前一个动作（无论插入、删除、粘贴还是替换）</td>
+</tr>
+<tr>
+<td><code dir="auto">&lt;Ctrl-r&gt;</code></td>
+<td>重做上一个动作（取消刚刚的撤销操作）</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="重复执行">重复执行</h4><a class="sl-anchor-link" href="#重复执行"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “重复执行”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">.</code></td>
+<td style="text-align: center">重复前一个动作</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="搜索和替换">搜索和替换</h3><a class="sl-anchor-link" href="#搜索和替换"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “搜索和替换”</span></a></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="搜索">搜索</h4><a class="sl-anchor-link" href="#搜索"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “搜索”</span></a></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">/&lt;word&gt;</code></td>
+<td style="text-align: center">向光标下寻找名称为 word 的字符串</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">?&lt;word&gt;</code></td>
+<td style="text-align: center">向光标上寻找名称为 word 的字符串</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">n</code></td>
+<td style="text-align: center">重复前一个搜索动作</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">N</code></td>
+<td style="text-align: center">反向进行前一个搜索动作</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>如果执行 <code dir="auto">/hello</code> 去向下搜索 <code dir="auto">hello</code>，则按下 <code dir="auto">n</code> 后会向下继续搜索下一个 <code dir="auto">hello</code>。如果是执行 <code dir="auto">?hello</code>，那么按下 <code dir="auto">n</code> 后会向上继续搜索，按下 <code dir="auto">N</code> 反向搜索。</p>
+</blockquote>
+<p>搜索时不区分大小写的方法：</p>
+<ul>
+<li>搜索时加上 <code dir="auto">\c</code>，即 <code dir="auto">/&lt;word&gt;\c</code>，表示忽略大小写</li>
+<li>设置当前 Vim 会话忽略大小写：<code dir="auto">:set ignorecase</code></li>
+<li>设置智能大小写敏感（搜索关键词都是小写则不区分大小写，包含大写字母则自动启用大小写敏感）：
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:</span><span style="--0:#C792EA;--1:#8844AE">set</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C5E478;--1:#3B61B0">ignorecase</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:</span><span style="--0:#C792EA;--1:#8844AE">set</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#C5E478;--1:#3B61B0">smartcase</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code=":set ignorecase:set smartcase"><div></div></button></div></figure></div>
+<blockquote>
+<p>两个都要设置，缺一不可。</p>
+</blockquote>
+</li>
+</ul>
+<div class="sl-heading-wrapper level-h4"><h4 id="替换">替换</h4><a class="sl-anchor-link" href="#替换"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “替换”</span></a></div>
+<p><strong>基本替换语法：</strong></p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:[范围]s</span><span style="--0:#5CA7E4;--1:#3A688F">/原内容/</span><span style="--0:#D6DEEB;--1:#403F53">新内容/[标志]</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code=":[范围]s/原内容/新内容/[标志]"><div></div></button></div></figure></div>
+<ul>
+<li><code dir="auto">[范围]</code>：指定替换所作用的范围，缺省默认当前行
+<ul>
+<li><code dir="auto">%</code> 表示整个文件</li>
+<li><code dir="auto">.</code> 表示当前行</li>
+<li><code dir="auto">&lt;n1&gt;,&lt;n2&gt;</code> 表示第 n1 行到第 n2 行</li>
+<li><code dir="auto">'&lt;,'&gt;</code> 表示选区（进入可视模式后 Vim 会自动填入）</li>
+</ul>
+</li>
+<li><code dir="auto">s</code>：substitute</li>
+<li><code dir="auto">[标志]</code>：控制其他行为
+<ul>
+<li><code dir="auto">g</code>：global，贪婪模式，替换范围内所有匹配项</li>
+<li><code dir="auto">c</code>：confirm，每次替换前询问</li>
+<li><code dir="auto">i</code>：ignorecase，本次替换忽略大小写</li>
+<li><code dir="auto">n</code>：no-substitute，只查找匹配数，不进行真正替换</li>
+</ul>
+</li>
+</ul>
+<p><strong>常用替换命令：</strong></p>
+<table>
+<thead>
+<tr>
+<th>替换命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">:s/foo/bar/</code></td>
+<td>当前行第一次出现的 <code dir="auto">foo</code> 替换为 <code dir="auto">bar</code></td>
+</tr>
+<tr>
+<td><code dir="auto">:s/foo/bar/g</code></td>
+<td>当前行所有 <code dir="auto">foo</code> 替换为 <code dir="auto">bar</code></td>
+</tr>
+<tr>
+<td><code dir="auto">:s/foo/bar/gc</code></td>
+<td>替换时每次都询问是否确认</td>
+</tr>
+<tr>
+<td><code dir="auto">:%s/foo/bar/g</code></td>
+<td>替换整个文件中的所有 <code dir="auto">foo</code> 为 <code dir="auto">bar</code></td>
+</tr>
+<tr>
+<td><code dir="auto">:3,10s/foo/bar/g</code></td>
+<td>替换第 3 到第 10 行之间的内容</td>
+</tr>
+<tr>
+<td><code dir="auto">:'&lt;,'&gt;s/foo/bar/g</code></td>
+<td>替换当前选中的可视区域</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="常用命令模式指令">常用命令模式指令</h3><a class="sl-anchor-link" href="#常用命令模式指令"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “常用命令模式指令”</span></a></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="文件操作">文件操作</h4><a class="sl-anchor-link" href="#文件操作"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “文件操作”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">:w</code></td>
+<td>保存当前文件（write）</td>
+</tr>
+<tr>
+<td><code dir="auto">:q</code></td>
+<td>退出</td>
+</tr>
+<tr>
+<td><code dir="auto">:q!</code></td>
+<td>强制退出（不保存）</td>
+</tr>
+<tr>
+<td><code dir="auto">:wq</code> 或 <code dir="auto">:x</code></td>
+<td>保存并退出</td>
+</tr>
+<tr>
+<td><code dir="auto">:e filename</code></td>
+<td>打开指定文件</td>
+</tr>
+<tr>
+<td><code dir="auto">:r filename</code></td>
+<td>读取并插入文件内容到当前光标下</td>
+</tr>
+<tr>
+<td><code dir="auto">:w filename</code></td>
+<td>另存为指定文件名</td>
+</tr>
+<tr>
+<td><code dir="auto">:n1,n2 w filename</code></td>
+<td>将 n1 到 n2 行的内容保存为指定文件名</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="特殊操作">特殊操作</h4><a class="sl-anchor-link" href="#特殊操作"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “特殊操作”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">:!command</code></td>
+<td>执行 shell 命令（如 <code dir="auto">:!ls</code>、<code dir="auto">:!gcc a.c</code>）</td>
+</tr>
+<tr>
+<td><code dir="auto">:help {标题}</code></td>
+<td>打开帮助文档（如 <code dir="auto">:help :w</code> 打开 <code dir="auto">:w</code> 命令的帮助文档）</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="环境变更">环境变更</h4><a class="sl-anchor-link" href="#环境变更"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “环境变更”</span></a></div>
+<p>基本格式：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:</span><span style="--0:#C792EA;--1:#8844AE">set</span><span style="--0:#D6DEEB;--1:#403F53"> 选项名</span><span style="--0:#919F9F;--1:#5F636F">       " 开启某个选项</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:</span><span style="--0:#C792EA;--1:#8844AE">set</span><span style="--0:#D6DEEB;--1:#403F53"> no选项名</span><span style="--0:#919F9F;--1:#5F636F">     " 关闭某个选项</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:</span><span style="--0:#C792EA;--1:#8844AE">set</span><span style="--0:#D6DEEB;--1:#403F53"> 选项</span><span style="--0:#7FDBCA;--1:#096E72">=</span><span style="--0:#D6DEEB;--1:#403F53">值</span><span style="--0:#919F9F;--1:#5F636F">      " 设置某个选项的具体值</span></div></div><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:</span><span style="--0:#C792EA;--1:#8844AE">set</span><span style="--0:#D6DEEB;--1:#403F53"> 选项</span><span style="--0:#7FDBCA;--1:#096E72">?</span><span style="--0:#919F9F;--1:#5F636F">        " 查看当前设置值</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code=":set 选项名       &quot; 开启某个选项:set no选项名     &quot; 关闭某个选项:set 选项=值      &quot; 设置某个选项的具体值:set 选项?        &quot; 查看当前设置值"><div></div></button></div></figure></div>
+<p>常用环境变更指令：</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">:set number</code></td>
+<td>显示行号</td>
+</tr>
+<tr>
+<td><code dir="auto">:set nonumber</code></td>
+<td>取消行号</td>
+</tr>
+<tr>
+<td><code dir="auto">:set showcmd</code></td>
+<td>在屏幕下方显示部分命令（如 <code dir="auto">d2w</code>）</td>
+</tr>
+<tr>
+<td><code dir="auto">:set ruler</code></td>
+<td>显示光标当前位置（行、列）</td>
+</tr>
+<tr>
+<td><code dir="auto">:set ignorecase</code></td>
+<td>搜索时忽略大小写</td>
+</tr>
+<tr>
+<td><code dir="auto">:set incsearch</code></td>
+<td>输入搜索时就高亮匹配项</td>
+</tr>
+<tr>
+<td><code dir="auto">:set hlsearch</code></td>
+<td>搜索完成后高亮所有匹配</td>
+</tr>
+<tr>
+<td><code dir="auto">:nohlsearch</code> 或 <code dir="auto">:noh</code></td>
+<td>关闭搜索高亮</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="使用示例">使用示例</h2><a class="sl-anchor-link" href="#使用示例"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “使用示例”</span></a></div>
+<p><strong>打开文件并跳转到指定行：</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">vim</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">+100</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">myfile.c</span><span style="--0:#D6DEEB;--1:#403F53">       </span><span style="--0:#919F9F;--1:#5F636F"># 打开文件并跳到第 100 行</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="vim +100 myfile.c       # 打开文件并跳到第 100 行"><div></div></button></div></figure></div>
+<p><strong>批量注释多行（块选择模式）：</strong></p>
+<ol>
+<li><code dir="auto">&lt;Ctrl-v&gt;</code> 进入块选择模式</li>
+<li><code dir="auto">j</code> 或 <code dir="auto">k</code> 选择需要注释的行</li>
+<li><code dir="auto">I</code> 进入插入模式，输入 <code dir="auto">//</code></li>
+<li>按 <code dir="auto">ESC</code>，所有选中行均被注释</li>
+</ol>
+<p><strong>全局替换字符串：</strong></p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="vim"><code><div class="ec-line"><div class="code"><span style="--0:#D6DEEB;--1:#403F53">:%s</span><span style="--0:#5CA7E4;--1:#3A688F">/oldword/</span><span style="--0:#D6DEEB;--1:#403F53">newword/g</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code=":%s/oldword/newword/g"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h2"><h2 id="参考资料">参考资料</h2><a class="sl-anchor-link" href="#参考资料"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “参考资料”</span></a></div>
+<ul>
+<li><a href="https://linux.vbird.org/linux_basic/centos7/0310vi.php">鸟哥的 Linux 私房菜 – Vim 程式编辑器</a></li>
+<li><a href="https://missing-semester-cn.github.io/2020/editors/">The Missing Semester of Your CS Education – 编辑器 (Vim)</a></li>
+</ul>
+</div><footer class="sl-flex astro-xhxjzfa7"><div class="meta sl-flex astro-xhxjzfa7"></div><div class="pagination-links print:hidden astro-jgq3vlii" dir="ltr"><a href="/linux-tools/04-system/parallel/" rel="prev" class="astro-jgq3vlii"><svg aria-hidden="true" class="astro-jgq3vlii astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-jgq3vlii">上一页<br class="astro-jgq3vlii"><span class="link-title astro-jgq3vlii">parallel</span></span></a><a href="/linux-tools/05-dev-tools/git/" rel="next" class="astro-jgq3vlii"><svg aria-hidden="true" class="astro-jgq3vlii astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-jgq3vlii">下一页<br class="astro-jgq3vlii"><span class="link-title astro-jgq3vlii">git</span></span></a></div></footer></div></div></main></div></div></div></div></body></html>

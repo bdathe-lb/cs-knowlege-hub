@@ -1,0 +1,462 @@
+<!DOCTYPE html><html lang="zh-CN" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-vdxcvpsm"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>sed | knowledge-hub</title><link rel="canonical" href="https://cs.bdathe.wiki/linux-tools/02-text-processing/sed/"/><link rel="sitemap" href="/sitemap-index.xml"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap"/><link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.2.3"/><meta name="generator" content="Starlight v0.41.7"/><meta property="og:title" content="sed"/><meta property="og:type" content="article"/><meta property="og:url" content="https://cs.bdathe.wiki/linux-tools/02-text-processing/sed/"/><meta property="og:locale" content="zh-CN"/><meta property="og:description" content="sed 是一个流编辑器，用于对文本进行转换和处理。它逐行读取输入，在内部缓冲区（模式空间）中进行操作，然后将结果输出。主要功能包括文本替换、删除、插入和筛选等，擅长批量文本处理"/><meta property="og:site_name" content="knowledge-hub"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="sed 是一个流编辑器，用于对文本进行转换和处理。它逐行读取输入，在内部缓冲区（模式空间）中进行操作，然后将结果输出。主要功能包括文本替换、删除、插入和筛选等，擅长批量文本处理"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/_astro/middleware.Buvyj4NK.css"><script type="module" src="/_astro/page.Dwipeu-R.js"></script></head><body class="astro-vdxcvpsm"><a class="sl-skip-link astro-vxeigawq" href="#_top">跳转到内容</a><div class="page sl-flex astro-gqpr5s5a"><header class="header astro-gqpr5s5a"><div class="header astro-nczgtkxc"><div class="title-wrapper sl-flex astro-nczgtkxc"><a href="/" class="site-title sl-flex astro-clw6ags5"><span class="astro-clw6ags5" translate="no">knowledge-hub</span></a></div><div class="sl-flex print:hidden astro-nczgtkxc"><site-search class="astro-nczgtkxc astro-r5ar4xm7" data-translations="{&quot;placeholder&quot;:&quot;搜索&quot;}"><button data-open-modal disabled aria-label="搜索" aria-keyshortcuts="Control+K" class="astro-r5ar4xm7"><svg aria-hidden="true" class="astro-r5ar4xm7 astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-r5ar4xm7" aria-hidden="true">搜索</span><kbd class="sl-hidden md:sl-flex astro-r5ar4xm7" style="display: none;"><kbd class="astro-r5ar4xm7">Ctrl</kbd><kbd class="astro-r5ar4xm7">K</kbd></kbd></button><dialog style="padding:0" aria-label="搜索" class="astro-r5ar4xm7"><div class="dialog-frame sl-flex astro-r5ar4xm7"><button data-close-modal class="sl-flex md:sl-hidden astro-r5ar4xm7">取消</button><div class="search-container astro-r5ar4xm7"><div id="starlight__search" class="astro-r5ar4xm7"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/_astro/Search.astro_astro_type_script_index_0_lang.B-Vh4ymV.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-nczgtkxc"><div class="sl-flex social-icons astro-nczgtkxc"></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-r2p65idu"><span class="sr-only astro-r2p65idu">选择主题</span><svg aria-hidden="true" class="icon label-icon astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-r2p65idu"><option value="dark" class="astro-r2p65idu">深色</option><option value="light" class="astro-r2p65idu">浅色</option><option value="auto" selected class="astro-r2p65idu">自动</option></select><svg aria-hidden="true" class="icon caret astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-gqpr5s5a" aria-label="主要"><starlight-menu-button class="print:hidden astro-vvx7mffu"><button aria-expanded="false" aria-label="菜单" aria-controls="starlight__sidebar" class="sl-flex md:sl-hidden astro-vvx7mffu"><svg aria-hidden="true" class="open-menu astro-vvx7mffu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-vvx7mffu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg></button></starlight-menu-button><script type="module">var e=class extends HTMLElement{btn=this.querySelector(`button`);constructor(){super(),this.btn.addEventListener(`click`,()=>this.toggleExpanded());let e=this.closest(`nav`);e&&e.addEventListener(`keyup`,e=>this.closeOnEscape(e)),matchMedia(`(min-width: 50em)`).addEventListener(`change`,()=>this.setExpanded(!1))}setExpanded(e){this.setAttribute(`aria-expanded`,String(e)),document.body.toggleAttribute(`data-mobile-menu-expanded`,e),document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}toggleExpanded(){this.setExpanded(this.getAttribute(`aria-expanded`)!==`true`)}closeOnEscape(e){e.code===`Escape`&&(this.setExpanded(!1),this.btn.focus())}};customElements.define(`starlight-menu-button`,e);</script><div id="starlight__sidebar" class="sidebar-pane astro-gqpr5s5a"><div class="sidebar-content sl-flex astro-gqpr5s5a"><sl-sidebar-state-persist data-hash="12q47oj" class="astro-f5yvicm7"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-ojxuodky"><li class="astro-ojxuodky"><a href="/" class="large astro-ojxuodky"><span class="astro-ojxuodky">总目录</span></a></li><li class="astro-ojxuodky"><a href="/cheatsheet/" class="large astro-ojxuodky"><span class="astro-ojxuodky">速查表</span></a></li><li class="astro-ojxuodky"><a href="/search/" class="large astro-ojxuodky"><span class="astro-ojxuodky">搜索</span></a></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">文件与目录操作 · 13/13</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/ls/" class="astro-ojxuodky"><span class="astro-ojxuodky">ls</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/cd/" class="astro-ojxuodky"><span class="astro-ojxuodky">cd</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/pwd/" class="astro-ojxuodky"><span class="astro-ojxuodky">pwd</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/cp/" class="astro-ojxuodky"><span class="astro-ojxuodky">cp</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/mv/" class="astro-ojxuodky"><span class="astro-ojxuodky">mv</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/mkdir/" class="astro-ojxuodky"><span class="astro-ojxuodky">mkdir</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/rmdir/" class="astro-ojxuodky"><span class="astro-ojxuodky">rmdir</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/touch/" class="astro-ojxuodky"><span class="astro-ojxuodky">touch</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/rm/" class="astro-ojxuodky"><span class="astro-ojxuodky">rm</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/ln/" class="astro-ojxuodky"><span class="astro-ojxuodky">ln</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/less/" class="astro-ojxuodky"><span class="astro-ojxuodky">less</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/file/" class="astro-ojxuodky"><span class="astro-ojxuodky">file</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/tree/" class="astro-ojxuodky"><span class="astro-ojxuodky">tree</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">查找与文本处理 · 13/13</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/find/" class="astro-ojxuodky"><span class="astro-ojxuodky">find</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/locate/" class="astro-ojxuodky"><span class="astro-ojxuodky">locate</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/xargs/" class="astro-ojxuodky"><span class="astro-ojxuodky">xargs</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/which/" class="astro-ojxuodky"><span class="astro-ojxuodky">which</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/grep/" class="astro-ojxuodky"><span class="astro-ojxuodky">grep</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/awk/" class="astro-ojxuodky"><span class="astro-ojxuodky">awk</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/sed/" aria-current="page" class="astro-ojxuodky"><span class="astro-ojxuodky">sed</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/cut/" class="astro-ojxuodky"><span class="astro-ojxuodky">cut</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/tr/" class="astro-ojxuodky"><span class="astro-ojxuodky">tr</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/paste/" class="astro-ojxuodky"><span class="astro-ojxuodky">paste</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/sort/" class="astro-ojxuodky"><span class="astro-ojxuodky">sort</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/uniq/" class="astro-ojxuodky"><span class="astro-ojxuodky">uniq</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/tee/" class="astro-ojxuodky"><span class="astro-ojxuodky">tee</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">文件打包与压缩 · 5/5</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/tar/" class="astro-ojxuodky"><span class="astro-ojxuodky">tar</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/gzip/" class="astro-ojxuodky"><span class="astro-ojxuodky">gzip</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/bzip2/" class="astro-ojxuodky"><span class="astro-ojxuodky">bzip2</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/xz/" class="astro-ojxuodky"><span class="astro-ojxuodky">xz</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/zip-unzip/" class="astro-ojxuodky"><span class="astro-ojxuodky">zip</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">进程与系统资源 · 11/11</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/04-system/ps/" class="astro-ojxuodky"><span class="astro-ojxuodky">ps</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/htop/" class="astro-ojxuodky"><span class="astro-ojxuodky">htop</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/kill/" class="astro-ojxuodky"><span class="astro-ojxuodky">kill</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/bg-fg/" class="astro-ojxuodky"><span class="astro-ojxuodky">bg / fg</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/df/" class="astro-ojxuodky"><span class="astro-ojxuodky">df</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/free/" class="astro-ojxuodky"><span class="astro-ojxuodky">free</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/du/" class="astro-ojxuodky"><span class="astro-ojxuodky">du</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/mount/" class="astro-ojxuodky"><span class="astro-ojxuodky">mount</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/lsblk/" class="astro-ojxuodky"><span class="astro-ojxuodky">lsblk</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/blkid/" class="astro-ojxuodky"><span class="astro-ojxuodky">blkid</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/parallel/" class="astro-ojxuodky"><span class="astro-ojxuodky">parallel</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">编程与开发工具 · 7/7</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/vim/" class="astro-ojxuodky"><span class="astro-ojxuodky">vim</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/git/" class="astro-ojxuodky"><span class="astro-ojxuodky">git</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/make/" class="astro-ojxuodky"><span class="astro-ojxuodky">make</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/gdb/" class="astro-ojxuodky"><span class="astro-ojxuodky">gdb</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/valgrind/" class="astro-ojxuodky"><span class="astro-ojxuodky">valgrind</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/strace/" class="astro-ojxuodky"><span class="astro-ojxuodky">strace</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/tmux/" class="astro-ojxuodky"><span class="astro-ojxuodky">tmux</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">网络工具 · 4/4</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/06-network/wget/" class="astro-ojxuodky"><span class="astro-ojxuodky">wget</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ssh/" class="astro-ojxuodky"><span class="astro-ojxuodky">ssh</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ping/" class="astro-ojxuodky"><span class="astro-ojxuodky">ping</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ss/" class="astro-ojxuodky"><span class="astro-ojxuodky">ss</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">计算机基础 · 6/6</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/cs-basics/shell/glob/" class="astro-ojxuodky"><span class="astro-ojxuodky">glob</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/regex/" class="astro-ojxuodky"><span class="astro-ojxuodky">regex</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/stdio/" class="astro-ojxuodky"><span class="astro-ojxuodky">stdio</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/terminal-colors/" class="astro-ojxuodky"><span class="astro-ojxuodky">terminal-colors</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/network/linux-network-programming/" class="astro-ojxuodky"><span class="astro-ojxuodky">socket</span></a></li><li class="astro-ojxuodky"><a href="/cheatsheet/" class="astro-ojxuodky"><span class="astro-ojxuodky">cheatsheet</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-b5gddk54"><div class="social-icons astro-b5gddk54"></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-r2p65idu"><span class="sr-only astro-r2p65idu">选择主题</span><svg aria-hidden="true" class="icon label-icon astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-r2p65idu"><option value="dark" class="astro-r2p65idu">深色</option><option value="light" class="astro-r2p65idu">浅色</option><option value="auto" selected class="astro-r2p65idu">自动</option></select><svg aria-hidden="true" class="icon caret astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></div></nav><div class="main-frame astro-gqpr5s5a"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-abfeecmu"><aside class="right-sidebar-container print:hidden astro-abfeecmu"><div class="right-sidebar astro-abfeecmu"><div class="lg:sl-hidden astro-q5mffni3"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-5ulgm6bh"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-5ulgm6bh"><details id="starlight__mobile-toc" class="astro-5ulgm6bh"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-5ulgm6bh"><span class="toggle sl-flex astro-5ulgm6bh">本页内容<svg aria-hidden="true" class="caret astro-5ulgm6bh astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-5ulgm6bh"></span></summary><div class="dropdown astro-5ulgm6bh"><ul class="isMobile astro-cxyftcne" style="--depth: 0;"><li style="--depth: 0;" class="astro-cxyftcne"><a href="#_top" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">概述</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#简介" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">简介</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#基本语法" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">基本语法</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#工作原理" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">工作原理</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#常用选项" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">常用选项</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#使用示例" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">使用示例</span></a><ul class="isMobile astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#s字符串替换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">s：字符串替换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#c整行替换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">c：整行替换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#p打印" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">p：打印</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#d删除" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">d：删除</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#a追加" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">a：追加</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#i前插" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">i：前插</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#q退出" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">q：退出</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#r读取" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">r：读取</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#w写入" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">w：写入</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#命令块" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">{}：命令块</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#行号" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">=：行号</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#注意事项" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">注意事项</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#参考资料" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">参考资料</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.BcSo_yiZ.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-q5mffni3"><div class="sl-container astro-q5mffni3"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">本页内容</h2><ul class="astro-cxyftcne" style="--depth: 0;"><li style="--depth: 0;" class="astro-cxyftcne"><a href="#_top" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">概述</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#简介" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">简介</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#基本语法" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">基本语法</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#工作原理" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">工作原理</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#常用选项" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">常用选项</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#使用示例" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">使用示例</span></a><ul class="astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#s字符串替换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">s：字符串替换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#c整行替换" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">c：整行替换</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#p打印" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">p：打印</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#d删除" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">d：删除</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#a追加" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">a：追加</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#i前插" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">i：前插</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#q退出" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">q：退出</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#r读取" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">r：读取</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#w写入" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">w：写入</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#命令块" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">{}：命令块</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#行号" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">=：行号</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#注意事项" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">注意事项</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#参考资料" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">参考资料</span></a></li></ul></nav></starlight-toc><script type="module" src="/_astro/TableOfContents.astro_astro_type_script_index_0_lang.Csloo1VZ.js"></script></div></div></div></aside><div class="main-pane astro-abfeecmu"><main data-pagefind-body class="astro-vdxcvpsm" lang="zh-CN" dir="ltr"><div class="content-panel astro-oil7k7jf"><div class="sl-container astro-oil7k7jf"><h1 id="_top" class="astro-2sm4b3ln">sed</h1></div></div><div class="content-panel astro-oil7k7jf"><div class="sl-container astro-oil7k7jf"><div class="sl-markdown-content"><div class="sl-heading-wrapper level-h2"><h2 id="简介">简介</h2><a class="sl-anchor-link" href="#简介"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “简介”</span></a></div>
+<p>sed 是一个流编辑器，用于对文本进行转换和处理。它逐行读取输入，在内部缓冲区（模式空间）中进行操作，然后将结果输出。主要功能包括文本替换、删除、插入和筛选等，擅长批量文本处理</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="基本语法">基本语法</h2><a class="sl-anchor-link" href="#基本语法"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “基本语法”</span></a></div>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.w36nc.css"><script type="module" src="/_astro/ec.0vx5m.js"></script><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> [选项] </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">command</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> 文件名</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed [选项] &#x27;command&#x27; 文件名"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h2"><h2 id="工作原理">工作原理</h2><a class="sl-anchor-link" href="#工作原理"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “工作原理”</span></a></div>
+<ol>
+<li><strong>读取输入</strong>：sed 从标准输入读取一行数据</li>
+<li><strong>存储在模式空间</strong>：读取的行存储在 sed 的内部缓冲区，称为模式空间</li>
+<li><strong>执行命令</strong>：sed 对模式空间中的内容执行用户指定的命令</li>
+<li><strong>输出</strong>：命令执行完毕后，sed 将模式空间的内容输出到标准输出，然后清空模式空间，准备处理下一行</li>
+</ol>
+<p>重复上述操作，直到文件末尾</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="常用选项">常用选项</h2><a class="sl-anchor-link" href="#常用选项"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “常用选项”</span></a></div>
+<p><strong>选项列表</strong></p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">-e</code></td>
+<td>添加执行的 command，可以多次使用多个 <code dir="auto">-e</code> 来执行多个命令，通常省略也可以</td>
+</tr>
+<tr>
+<td><code dir="auto">-n</code></td>
+<td>取消默认输出，只有明确用 <code dir="auto">p</code> 命令时才会打印输出</td>
+</tr>
+<tr>
+<td><code dir="auto">-i</code></td>
+<td>直接把修改结果写回原文件（危险操作，谨慎使用）</td>
+</tr>
+<tr>
+<td><code dir="auto">-f script.sed</code></td>
+<td>从指定文件中读取 sed 脚本</td>
+</tr>
+<tr>
+<td><code dir="auto">--version</code></td>
+<td>查看 sed 版本信息</td>
+</tr>
+<tr>
+<td><code dir="auto">--help</code></td>
+<td>查看帮助信息</td>
+</tr>
+</tbody>
+</table>
+<p><strong>命令列表</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">s</code></td>
+<td style="text-align: center">替换指定字符</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">p</code></td>
+<td style="text-align: center">打印行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">d</code></td>
+<td style="text-align: center">删除行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">a</code></td>
+<td style="text-align: center">插入文本到指定行后</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">i</code></td>
+<td style="text-align: center">插入文本到指定行前</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">c</code></td>
+<td style="text-align: center">替换整行内容</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">q</code></td>
+<td style="text-align: center">提前退出</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">r</code></td>
+<td style="text-align: center">读入文件内容并插入原文本</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">w</code></td>
+<td style="text-align: center">将匹配的内容写入文件</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">{}</code></td>
+<td style="text-align: center">多条命令组合</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">=</code></td>
+<td style="text-align: center">显示行号</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h2"><h2 id="使用示例">使用示例</h2><a class="sl-anchor-link" href="#使用示例"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “使用示例”</span></a></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="s字符串替换"><code dir="auto">s</code>：字符串替换</h3><a class="sl-anchor-link" href="#s字符串替换"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “s：字符串替换”</span></a></div>
+<p><strong>语法</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">'s/原内容/新内容/[标记]'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="&#x27;s/原内容/新内容/[标记]&#x27;"><div></div></button></div></figure></div>
+<p><strong>常用标志</strong>：</p>
+<ul>
+<li><code dir="auto">g</code>：贪婪匹配，替换每一行中的所有匹配项</li>
+<li><code dir="auto">i</code>：忽略大小写</li>
+<li><code dir="auto">&lt;N&gt;</code>：替换第 <code dir="auto">&lt;N&gt;</code> 个匹配项</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 每行替换第一个 old 为 new</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">s/old/new/</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 每行替换所有 old 为 new</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">s/old/new/g</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 每行替换第二个 apple 为 APPLE</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">s/apple/APPLE/2</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;s/old/new/&#x27; file.txtsed &#x27;s/old/new/g&#x27; file.txtsed &#x27;s/apple/APPLE/2&#x27; file.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="c整行替换"><code dir="auto">c</code>：整行替换</h3><a class="sl-anchor-link" href="#c整行替换"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “c：整行替换”</span></a></div>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N&gt;c 新内容</code></td>
+<td style="text-align: center">将第 N 行替换为“新内容”</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N,M&gt;c 新内容</code></td>
+<td style="text-align: center">将第 N 到 M 行合并成一行，替换为“新内容”</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">/pattern/c 新内容</code></td>
+<td style="text-align: center">将匹配正则的行替换为“新内容”</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>如果插入的内容是多行，用 <code dir="auto">\</code> 分割</p>
+</blockquote>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 将第 5 行替换为 content</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">5c content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 将第 1 到 4 行的文本替换为 content</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">1,4c content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 将匹配 error 的行替换为 content</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/error/c content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 将第 3 行替换为两行内容</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">3c\</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">第一行content\</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">第二行content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;5c content&#x27; file.txtsed &#x27;1,4c content&#x27; file.txtsed &#x27;/error/c content&#x27; file.txtsed &#x27;3c\第一行content\第二行content&#x27; file.txt"><div></div></button></div></figure></div>
+<blockquote>
+<p><code dir="auto">sed '3c 第一行content\n第二行content' file.txt</code> 这样写是错的，因为 <code dir="auto">\n</code> 不会被识别为换行，sed 会把整段当作一行插入</p>
+</blockquote>
+<div class="sl-heading-wrapper level-h3"><h3 id="p打印"><code dir="auto">p</code>：打印</h3><a class="sl-anchor-link" href="#p打印"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “p：打印”</span></a></div>
+<blockquote>
+<p>通常要搭配 <code dir="auto">-n</code> 选项使用，否则可能重复打印</p>
+</blockquote>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">'&lt;N&gt;p'</code></td>
+<td style="text-align: center">打印第 N 行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">'&lt;N,M&gt;p'</code></td>
+<td style="text-align: center">打印第 N-M 行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">'/pattern/p'</code></td>
+<td style="text-align: center">打印匹配正则的行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">'/pattern/!p'</code></td>
+<td style="text-align: center">打印不匹配正则的行</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 打印第 3 行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">3p</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 打印第 2 行到第 4 行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">2,4p</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 打印包含 error 的所有行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/error/p</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 打印不包含 error 的行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/error/!p</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed -n &#x27;3p&#x27; file.txtsed -n &#x27;2,4p&#x27; file.txtsed -n &#x27;/error/p&#x27; file.txtsed -n &#x27;/error/!p&#x27; file.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="d删除"><code dir="auto">d</code>：删除</h3><a class="sl-anchor-link" href="#d删除"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “d：删除”</span></a></div>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">'&lt;N&gt;d'</code></td>
+<td style="text-align: center">删除第 N 行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">'&lt;N,M&gt;d'</code></td>
+<td style="text-align: center">删除第 N ~ M 行</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">'/pattern/d'</code></td>
+<td style="text-align: center">删除匹配正则的行</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 删除第 3 行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">3d</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 删除第 2 行到第 5 行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">2,5d</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 删除匹配 error 的行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/error/d</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 删除空行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/^$/d</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;3d&#x27; file.txtsed &#x27;2,5d&#x27; file.txtsed &#x27;/error/d&#x27; file.txtsed &#x27;/^$/d&#x27; file.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="a追加"><code dir="auto">a</code>：追加</h3><a class="sl-anchor-link" href="#a追加"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “a：追加”</span></a></div>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N&gt;a 内容</code></td>
+<td style="text-align: center">在第 N 行后插入一行文本</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">/pattern/a 内容</code></td>
+<td style="text-align: center">在匹配的行后插入文本</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>如果插入的内容是多行，用 <code dir="auto">\</code> 分割
+sed 中 <code dir="auto">a</code> 命令不支持用于多个行地址（如 <code dir="auto">1,5</code>）</p>
+</blockquote>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 在第 2 行后插入一行文本</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">2a content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 在每个包含 error 的行下面插入文本</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/error/a 插入提示信息</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 插入两行文本在第 3 行之后</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">3a\</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">第一行 content\</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">第二行 content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;2a content&#x27; file.txtsed &#x27;/error/a 插入提示信息&#x27; file.txtsed &#x27;3a\第一行 content\第二行 content&#x27; file.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="i前插"><code dir="auto">i</code>：前插</h3><a class="sl-anchor-link" href="#i前插"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “i：前插”</span></a></div>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N&gt;i 内容</code></td>
+<td style="text-align: center">在第 N 行前插入一行文本</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N,M&gt;i 内容</code></td>
+<td style="text-align: center">在第 N ~ M 行每行前插入内容</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">/pattern/i 内容</code></td>
+<td style="text-align: center">在匹配的行前插入文本</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>如果插入的内容是多行，用 <code dir="auto">\</code> 分割</p>
+</blockquote>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 在第 2 行前插入一行文本</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">2i content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 在每个包含 server 的行之前插入文本</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/server/i 新配置如下</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 插入两行文本在第 3 行之前</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">3i\</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">第一行 content\</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">第二行 content</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;2i content&#x27; file.txtsed &#x27;/server/i 新配置如下&#x27; file.txtsed &#x27;3i\第一行 content\第二行 content&#x27; file.txt"><div></div></button></div></figure></div>
+<blockquote>
+<p><code dir="auto">sed '2i 第一行content\n第二行content' file.txt</code> 这样写是错的，因为 <code dir="auto">\n</code> 不会被识别为换行，sed 会把整段当作一行插入</p>
+</blockquote>
+<div class="sl-heading-wrapper level-h3"><h3 id="q退出"><code dir="auto">q</code>：退出</h3><a class="sl-anchor-link" href="#q退出"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “q：退出”</span></a></div>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">命令</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N&gt;q</code></td>
+<td style="text-align: center">处理到第 N 行后退出</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">/pattern/q</code></td>
+<td style="text-align: center">匹配到正则后退出</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">'&lt;N,M&gt; {p; q}</code></td>
+<td style="text-align: center">区间内打印并提前退出</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 在第 5 行后退出</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">5q</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 遇到包含 ERROR 的行，立刻退出</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/ERROR/q</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">logfile.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 只输出前 50 行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">1,100{p;50q}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 打印前 5 行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">1,5p;5q</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;5q&#x27; file.txtsed &#x27;/ERROR/q&#x27; logfile.txtsed -n &#x27;1,100{p;50q}&#x27;sed -n &#x27;1,5p;5q&#x27;"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="r读取"><code dir="auto">r</code>：读取</h3><a class="sl-anchor-link" href="#r读取"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “r：读取”</span></a></div>
+<p>该命令用于在指定的行后读取外部文件的内容，并将这些内容插入到输出中。</p>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">语法格式</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N&gt;r 文件名</code></td>
+<td style="text-align: center">在第 N 行后插入文件内容</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">/pattern/r 文件名</code></td>
+<td style="text-align: center">在匹配到正则的行后插入文件</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N,M&gt;{/pattern/r 文件名}</code></td>
+<td style="text-align: center">在第 N 至 M 行中匹配到 <code dir="auto">pattern</code> 的行后插入文件内容</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 将 insert.txt 文件的内容插入到 input.txt 的第 3 行后面</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">3r insert.txt</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">input.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 查找所有以 #INSERT_HERE 开头的行，在这些行之后插入 footer.txt 的内容</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/^#INSERT_HERE/r footer.txt</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">main.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 打印前 5 行，并在第 5 行后插入文件内容</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">1,5p;5r insert.txt</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 第 1 至 10 行中匹配到 pattern 的行后插入文件内容</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">1,10{/pattern/r file.txt}</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">input.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;3r insert.txt&#x27; input.txtsed &#x27;/^#INSERT_HERE/r footer.txt&#x27; main.txtsed -n &#x27;1,5p;5r insert.txt&#x27; file.txtsed &#x27;1,10{/pattern/r file.txt}&#x27; input.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="w写入"><code dir="auto">w</code>：写入</h3><a class="sl-anchor-link" href="#w写入"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “w：写入”</span></a></div>
+<p>该命令用于将匹配的行内容写入指定的文件中，同时也会将原行输出到标准输出（除非使用 <code dir="auto">-n</code> 取消默认输出）。</p>
+<p><strong>语法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center">语法</th>
+<th style="text-align: center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N&gt;w 文件名</code></td>
+<td style="text-align: center">将第 N 行写入指定文件</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">&lt;N,M&gt;w 文件名</code></td>
+<td style="text-align: center">指定行范围写入文件</td>
+</tr>
+<tr>
+<td style="text-align: center"><code dir="auto">/pattern/w 文件名</code></td>
+<td style="text-align: center">将匹配正则的行写入文件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 把第 5 行写入文件</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">5w out.txt</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">input.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 把第 5 到 6 行写入文件</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">5,6w out.txt</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">input.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 所有包含 ERROR 的行都会被写到 error.log</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/ERROR/w error.log</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">server.log</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># WARN 行写入 warn.log，ERROR 行写入 error.log</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/WARN/w warn.log; /ERROR/w error.log</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">log.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed &#x27;5w out.txt&#x27; input.txtsed &#x27;5,6w out.txt&#x27; input.txtsed &#x27;/ERROR/w error.log&#x27; server.logsed &#x27;/WARN/w warn.log; /ERROR/w error.log&#x27; log.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="命令块"><code dir="auto">{}</code>：命令块</h3><a class="sl-anchor-link" href="#命令块"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “{}：命令块”</span></a></div>
+<p><code dir="auto">{}</code> 用于把多条 sed 命令组合在一起，针对同一个地址或模式范围一起执行。大括号内命令之间用分号 <code dir="auto">;</code> 或换行分隔。</p>
+<p><strong>语法</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">'地址{command1; command2; ...; commandN}'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="&#x27;地址{command1; command2; ...; commandN}&#x27;"><div></div></button></div></figure></div>
+<ul>
+<li>地址：可以是行号、地址范围（<code dir="auto">N,M</code>）、模式匹配（<code dir="auto">/pattern/</code>）等</li>
+<li><code dir="auto">command1..N</code>：大括号里的一条或多条 sed 命令</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 对第 2~4 行执行：替换 foo 为 bar，然后打印</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-n</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">2,4{ s/foo/bar/; p }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 匹配含 ERROR 的行：写入 error.log，然后删除</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">/ERROR/{ w error.log; d }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">app.log</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 在第 1-3 行替换内容并打印、删除（换行写法，推荐）</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">sed</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">1,3{</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">s/foo/bar</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">   </span></span><span style="--0:#ECC48D;--1:#984E4D">p</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">   </span></span><span style="--0:#ECC48D;--1:#984E4D">d</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="sed -n &#x27;2,4{ s/foo/bar/; p }&#x27; file.txtsed &#x27;/ERROR/{ w error.log; d }&#x27; app.logsed &#x27;1,3{  s/foo/bar   p   d}&#x27; file.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="行号"><code dir="auto">=</code>：行号</h3><a class="sl-anchor-link" href="#行号"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “=：行号”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">sed '=' file.txt</code></td>
+<td>显示每一行的行号</td>
+</tr>
+<tr>
+<td><code dir="auto">sed -n '10{=;p}'</code></td>
+<td>显示第 10 行的行号和内容</td>
+</tr>
+<tr>
+<td><code dir="auto">sed -n '/main/{=;p}'</code></td>
+<td>显示包含 “main” 的行号和内容</td>
+</tr>
+<tr>
+<td><code dir="auto">sed '=' file.txt | paste - -</code></td>
+<td>将行号和内容合并在一行显示（推荐）</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="注意事项">注意事项</h3><a class="sl-anchor-link" href="#注意事项"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “注意事项”</span></a></div>
+<p>进行原地替换时，例如 <code dir="auto">sed s/REGEX/SUBSTITUTION/ input.txt &gt; input.txt</code> 并不是安全的做法。当使用 <code dir="auto">&gt;</code> 重定向输出时，shell 会先打开目标文件并将其截断（清空内容），然后才执行 sed 命令。这意味着 sed 试图读取的是已经被清空的文件，最终导致原文件内容丢失。</p>
+<p>这不是 sed 特有的行为，而是 shell 重定向机制导致的。任何使用 <code dir="auto">command input &gt; input</code> 形式的命令（如 awk、grep 等）都会遇到同样的问题，因为<strong>文件截断发生在命令执行之前</strong>。</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="参考资料">参考资料</h2><a class="sl-anchor-link" href="#参考资料"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “参考资料”</span></a></div>
+<ul>
+<li><code dir="auto">man sed</code></li>
+<li><a href="https://www.gnu.org/software/sed/manual/sed.html">GNU sed Manual</a></li>
+</ul>
+</div><footer class="sl-flex astro-xhxjzfa7"><div class="meta sl-flex astro-xhxjzfa7"></div><div class="pagination-links print:hidden astro-jgq3vlii" dir="ltr"><a href="/linux-tools/02-text-processing/awk/" rel="prev" class="astro-jgq3vlii"><svg aria-hidden="true" class="astro-jgq3vlii astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-jgq3vlii">上一页<br class="astro-jgq3vlii"><span class="link-title astro-jgq3vlii">awk</span></span></a><a href="/linux-tools/02-text-processing/cut/" rel="next" class="astro-jgq3vlii"><svg aria-hidden="true" class="astro-jgq3vlii astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-jgq3vlii">下一页<br class="astro-jgq3vlii"><span class="link-title astro-jgq3vlii">cut</span></span></a></div></footer></div></div></main></div></div></div></div></body></html>

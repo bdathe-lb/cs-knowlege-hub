@@ -1,0 +1,697 @@
+<!DOCTYPE html><html lang="zh-CN" dir="ltr" data-theme="dark" data-has-toc data-has-sidebar class="astro-vdxcvpsm"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>awk | knowledge-hub</title><link rel="canonical" href="https://cs.bdathe.wiki/linux-tools/02-text-processing/awk/"/><link rel="sitemap" href="/sitemap-index.xml"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap"/><link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml"/><meta name="generator" content="Astro v7.2.3"/><meta name="generator" content="Starlight v0.41.7"/><meta property="og:title" content="awk"/><meta property="og:type" content="article"/><meta property="og:url" content="https://cs.bdathe.wiki/linux-tools/02-text-processing/awk/"/><meta property="og:locale" content="zh-CN"/><meta property="og:description" content="awk 是一种用于文本和数据处理的编程语言。数据可以来自标准输入、文件或其他命令的输出。awk 提供变量、数学运算、字符串处理等编程语言功能，特别适用于按列（字段）分析和处理结构化文本（如 CSV、日志文件、配置文件等）"/><meta property="og:site_name" content="knowledge-hub"/><meta name="twitter:card" content="summary_large_image"/><meta name="description" content="awk 是一种用于文本和数据处理的编程语言。数据可以来自标准输入、文件或其他命令的输出。awk 提供变量、数学运算、字符串处理等编程语言功能，特别适用于按列（字段）分析和处理结构化文本（如 CSV、日志文件、配置文件等）"/><script>
+	window.StarlightThemeProvider = (() => {
+		const storedTheme =
+			typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme');
+		const theme =
+			storedTheme ||
+			(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+		document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+		return {
+			updatePickers(theme = storedTheme || 'auto') {
+				document.querySelectorAll('starlight-theme-select').forEach((picker) => {
+					const select = picker.querySelector('select');
+					if (select) select.value = theme;
+					/** @type {HTMLTemplateElement | null} */
+					const tmpl = document.querySelector(`#theme-icons`);
+					const newIcon = tmpl && tmpl.content.querySelector('.' + theme);
+					if (newIcon) {
+						const oldIcon = picker.querySelector('svg.label-icon');
+						if (oldIcon) {
+							oldIcon.replaceChildren(...newIcon.cloneNode(true).childNodes);
+						}
+					}
+				});
+			},
+		};
+	})();
+</script><template id="theme-icons"><svg aria-hidden="true" class="light astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M5 12a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h1a1 1 0 0 0 1-1Zm.64 5-.71.71a1 1 0 0 0 0 1.41 1 1 0 0 0 1.41 0l.71-.71A1 1 0 0 0 5.64 17ZM12 5a1 1 0 0 0 1-1V3a1 1 0 0 0-2 0v1a1 1 0 0 0 1 1Zm5.66 2.34a1 1 0 0 0 .7-.29l.71-.71a1 1 0 1 0-1.41-1.41l-.66.71a1 1 0 0 0 0 1.41 1 1 0 0 0 .66.29Zm-12-.29a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.71-.71a1.004 1.004 0 1 0-1.43 1.41l.73.71ZM21 11h-1a1 1 0 0 0 0 2h1a1 1 0 0 0 0-2Zm-2.64 6A1 1 0 0 0 17 18.36l.71.71a1 1 0 0 0 1.41 0 1 1 0 0 0 0-1.41l-.76-.66ZM12 6.5a5.5 5.5 0 1 0 5.5 5.5A5.51 5.51 0 0 0 12 6.5Zm0 9a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm0 3.5a1 1 0 0 0-1 1v1a1 1 0 0 0 2 0v-1a1 1 0 0 0-1-1Z"/></svg><svg aria-hidden="true" class="dark astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.049 8.049 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05Zm-9.5 6.69A8.14 8.14 0 0 1 7.08 5.22v.27a10.15 10.15 0 0 0 10.14 10.14 9.784 9.784 0 0 0 2.1-.22 8.11 8.11 0 0 1-7.18 4.32v-.04Z"/></svg><svg aria-hidden="true" class="auto astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg></template><link rel="stylesheet" href="/_astro/print.ehPL0gv-.css" media="print"><link rel="stylesheet" href="/_astro/middleware.Buvyj4NK.css"><script type="module" src="/_astro/page.Dwipeu-R.js"></script></head><body class="astro-vdxcvpsm"><a class="sl-skip-link astro-vxeigawq" href="#_top">跳转到内容</a><div class="page sl-flex astro-gqpr5s5a"><header class="header astro-gqpr5s5a"><div class="header astro-nczgtkxc"><div class="title-wrapper sl-flex astro-nczgtkxc"><a href="/" class="site-title sl-flex astro-clw6ags5"><span class="astro-clw6ags5" translate="no">knowledge-hub</span></a></div><div class="sl-flex print:hidden astro-nczgtkxc"><site-search class="astro-nczgtkxc astro-r5ar4xm7" data-translations="{&quot;placeholder&quot;:&quot;搜索&quot;}"><button data-open-modal disabled aria-label="搜索" aria-keyshortcuts="Control+K" class="astro-r5ar4xm7"><svg aria-hidden="true" class="astro-r5ar4xm7 astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21.71 20.29 18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Z"/></svg><span class="sl-hidden md:sl-block astro-r5ar4xm7" aria-hidden="true">搜索</span><kbd class="sl-hidden md:sl-flex astro-r5ar4xm7" style="display: none;"><kbd class="astro-r5ar4xm7">Ctrl</kbd><kbd class="astro-r5ar4xm7">K</kbd></kbd></button><dialog style="padding:0" aria-label="搜索" class="astro-r5ar4xm7"><div class="dialog-frame sl-flex astro-r5ar4xm7"><button data-close-modal class="sl-flex md:sl-hidden astro-r5ar4xm7">取消</button><div class="search-container astro-r5ar4xm7"><div id="starlight__search" class="astro-r5ar4xm7"></div></div></div></dialog></site-search><script>
+	(() => {
+		const openBtn = document.querySelector('button[data-open-modal]');
+		const shortcut = openBtn?.querySelector('kbd');
+		if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+		const platformKey = shortcut.querySelector('kbd');
+		if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+			platformKey.textContent = '⌘';
+			openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+		}
+		shortcut.style.display = '';
+	})();
+</script><script type="module" src="/_astro/Search.astro_astro_type_script_index_0_lang.B-Vh4ymV.js"></script></div><div class="sl-hidden md:sl-flex print:hidden right-group astro-nczgtkxc"><div class="sl-flex social-icons astro-nczgtkxc"></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-r2p65idu"><span class="sr-only astro-r2p65idu">选择主题</span><svg aria-hidden="true" class="icon label-icon astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-r2p65idu"><option value="dark" class="astro-r2p65idu">深色</option><option value="light" class="astro-r2p65idu">浅色</option><option value="auto" selected class="astro-r2p65idu">自动</option></select><svg aria-hidden="true" class="icon caret astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script><script type="module">var e=`starlight-theme`,t=e=>e===`auto`||e===`dark`||e===`light`?e:`auto`,n=()=>t(typeof localStorage<`u`&&localStorage.getItem(e));function r(t){typeof localStorage<`u`&&localStorage.setItem(e,t===`light`||t===`dark`?t:``)}var i=()=>matchMedia(`(prefers-color-scheme: light)`).matches?`light`:`dark`;function a(e){StarlightThemeProvider.updatePickers(e),document.documentElement.dataset.theme=e===`auto`?i():e,r(e)}matchMedia(`(prefers-color-scheme: light)`).addEventListener(`change`,()=>{n()===`auto`&&a(`auto`)});var o=class extends HTMLElement{constructor(){super(),a(n()),this.querySelector(`select`)?.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&a(t(e.currentTarget.value))})}};customElements.define(`starlight-theme-select`,o);</script><script type="module">var e=class extends HTMLElement{constructor(){super();let e=this.querySelector(`select`);e&&(e.addEventListener(`change`,e=>{e.currentTarget instanceof HTMLSelectElement&&(window.location.pathname=e.currentTarget.value)}),window.addEventListener(`pageshow`,t=>{if(!t.persisted)return;let n=e.querySelector(`option[selected]`)?.index;n!==e.selectedIndex&&(e.selectedIndex=n??0)}))}};customElements.define(`starlight-lang-select`,e);</script></div></div></header><nav class="sidebar print:hidden astro-gqpr5s5a" aria-label="主要"><starlight-menu-button class="print:hidden astro-vvx7mffu"><button aria-expanded="false" aria-label="菜单" aria-controls="starlight__sidebar" class="sl-flex md:sl-hidden astro-vvx7mffu"><svg aria-hidden="true" class="open-menu astro-vvx7mffu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M3 8h18a1 1 0 1 0 0-2H3a1 1 0 0 0 0 2Zm18 8H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Zm0-5H3a1 1 0 0 0 0 2h18a1 1 0 0 0 0-2Z"/></svg><svg aria-hidden="true" class="close-menu astro-vvx7mffu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="m13.41 12 6.3-6.29a1.004 1.004 0 1 0-1.42-1.42L12 10.59l-6.29-6.3a1.004 1.004 0 0 0-1.42 1.42l6.3 6.29-6.3 6.29a1 1 0 0 0 0 1.42.998.998 0 0 0 1.42 0l6.29-6.3 6.29 6.3a.999.999 0 0 0 1.42 0 1 1 0 0 0 0-1.42L13.41 12Z"/></svg></button></starlight-menu-button><script type="module">var e=class extends HTMLElement{btn=this.querySelector(`button`);constructor(){super(),this.btn.addEventListener(`click`,()=>this.toggleExpanded());let e=this.closest(`nav`);e&&e.addEventListener(`keyup`,e=>this.closeOnEscape(e)),matchMedia(`(min-width: 50em)`).addEventListener(`change`,()=>this.setExpanded(!1))}setExpanded(e){this.setAttribute(`aria-expanded`,String(e)),document.body.toggleAttribute(`data-mobile-menu-expanded`,e),document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}toggleExpanded(){this.setExpanded(this.getAttribute(`aria-expanded`)!==`true`)}closeOnEscape(e){e.code===`Escape`&&(this.setExpanded(!1),this.btn.focus())}};customElements.define(`starlight-menu-button`,e);</script><div id="starlight__sidebar" class="sidebar-pane astro-gqpr5s5a"><div class="sidebar-content sl-flex astro-gqpr5s5a"><sl-sidebar-state-persist data-hash="12q47oj" class="astro-f5yvicm7"><script aria-hidden="true">
+		(() => {
+			try {
+				if (!matchMedia('(min-width: 50em)').matches) return;
+				/** @type {HTMLElement | null} */
+				const target = document.querySelector('sl-sidebar-state-persist');
+				const state = JSON.parse(sessionStorage.getItem('sl-sidebar-state') || '0');
+				if (!target || !state || target.dataset.hash !== state.hash) return;
+				window._starlightScrollRestore = state.scroll;
+				customElements.define(
+					'sl-sidebar-restore',
+					class SidebarRestore extends HTMLElement {
+						connectedCallback() {
+							try {
+								const idx = parseInt(this.dataset.index || '');
+								const details = this.closest('details');
+								if (details && typeof state.open[idx] === 'boolean') details.open = state.open[idx];
+							} catch {}
+						}
+					}
+				);
+			} catch {}
+		})();
+	</script><ul class="top-level astro-ojxuodky"><li class="astro-ojxuodky"><a href="/" class="large astro-ojxuodky"><span class="astro-ojxuodky">总目录</span></a></li><li class="astro-ojxuodky"><a href="/cheatsheet/" class="large astro-ojxuodky"><span class="astro-ojxuodky">速查表</span></a></li><li class="astro-ojxuodky"><a href="/search/" class="large astro-ojxuodky"><span class="astro-ojxuodky">搜索</span></a></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">文件与目录操作 · 13/13</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="0"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/ls/" class="astro-ojxuodky"><span class="astro-ojxuodky">ls</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/cd/" class="astro-ojxuodky"><span class="astro-ojxuodky">cd</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/pwd/" class="astro-ojxuodky"><span class="astro-ojxuodky">pwd</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/cp/" class="astro-ojxuodky"><span class="astro-ojxuodky">cp</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/mv/" class="astro-ojxuodky"><span class="astro-ojxuodky">mv</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/mkdir/" class="astro-ojxuodky"><span class="astro-ojxuodky">mkdir</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/rmdir/" class="astro-ojxuodky"><span class="astro-ojxuodky">rmdir</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/touch/" class="astro-ojxuodky"><span class="astro-ojxuodky">touch</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/rm/" class="astro-ojxuodky"><span class="astro-ojxuodky">rm</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/ln/" class="astro-ojxuodky"><span class="astro-ojxuodky">ln</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/less/" class="astro-ojxuodky"><span class="astro-ojxuodky">less</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/file/" class="astro-ojxuodky"><span class="astro-ojxuodky">file</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/01-file-ops/tree/" class="astro-ojxuodky"><span class="astro-ojxuodky">tree</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">查找与文本处理 · 13/13</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="1"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/find/" class="astro-ojxuodky"><span class="astro-ojxuodky">find</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/locate/" class="astro-ojxuodky"><span class="astro-ojxuodky">locate</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/xargs/" class="astro-ojxuodky"><span class="astro-ojxuodky">xargs</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/which/" class="astro-ojxuodky"><span class="astro-ojxuodky">which</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/grep/" class="astro-ojxuodky"><span class="astro-ojxuodky">grep</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/awk/" aria-current="page" class="astro-ojxuodky"><span class="astro-ojxuodky">awk</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/sed/" class="astro-ojxuodky"><span class="astro-ojxuodky">sed</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/cut/" class="astro-ojxuodky"><span class="astro-ojxuodky">cut</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/tr/" class="astro-ojxuodky"><span class="astro-ojxuodky">tr</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/paste/" class="astro-ojxuodky"><span class="astro-ojxuodky">paste</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/sort/" class="astro-ojxuodky"><span class="astro-ojxuodky">sort</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/uniq/" class="astro-ojxuodky"><span class="astro-ojxuodky">uniq</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/02-text-processing/tee/" class="astro-ojxuodky"><span class="astro-ojxuodky">tee</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">文件打包与压缩 · 5/5</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="2"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/tar/" class="astro-ojxuodky"><span class="astro-ojxuodky">tar</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/gzip/" class="astro-ojxuodky"><span class="astro-ojxuodky">gzip</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/bzip2/" class="astro-ojxuodky"><span class="astro-ojxuodky">bzip2</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/xz/" class="astro-ojxuodky"><span class="astro-ojxuodky">xz</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/03-archive/zip-unzip/" class="astro-ojxuodky"><span class="astro-ojxuodky">zip</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">进程与系统资源 · 11/11</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="3"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/04-system/ps/" class="astro-ojxuodky"><span class="astro-ojxuodky">ps</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/htop/" class="astro-ojxuodky"><span class="astro-ojxuodky">htop</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/kill/" class="astro-ojxuodky"><span class="astro-ojxuodky">kill</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/bg-fg/" class="astro-ojxuodky"><span class="astro-ojxuodky">bg / fg</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/df/" class="astro-ojxuodky"><span class="astro-ojxuodky">df</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/free/" class="astro-ojxuodky"><span class="astro-ojxuodky">free</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/du/" class="astro-ojxuodky"><span class="astro-ojxuodky">du</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/mount/" class="astro-ojxuodky"><span class="astro-ojxuodky">mount</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/lsblk/" class="astro-ojxuodky"><span class="astro-ojxuodky">lsblk</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/blkid/" class="astro-ojxuodky"><span class="astro-ojxuodky">blkid</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/04-system/parallel/" class="astro-ojxuodky"><span class="astro-ojxuodky">parallel</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">编程与开发工具 · 7/7</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="4"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/vim/" class="astro-ojxuodky"><span class="astro-ojxuodky">vim</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/git/" class="astro-ojxuodky"><span class="astro-ojxuodky">git</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/make/" class="astro-ojxuodky"><span class="astro-ojxuodky">make</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/gdb/" class="astro-ojxuodky"><span class="astro-ojxuodky">gdb</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/valgrind/" class="astro-ojxuodky"><span class="astro-ojxuodky">valgrind</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/strace/" class="astro-ojxuodky"><span class="astro-ojxuodky">strace</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/05-dev-tools/tmux/" class="astro-ojxuodky"><span class="astro-ojxuodky">tmux</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">网络工具 · 4/4</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="5"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/linux-tools/06-network/wget/" class="astro-ojxuodky"><span class="astro-ojxuodky">wget</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ssh/" class="astro-ojxuodky"><span class="astro-ojxuodky">ssh</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ping/" class="astro-ojxuodky"><span class="astro-ojxuodky">ping</span></a></li><li class="astro-ojxuodky"><a href="/linux-tools/06-network/ss/" class="astro-ojxuodky"><span class="astro-ojxuodky">ss</span></a></li></ul></details></li><li class="astro-ojxuodky"><details open class="astro-ojxuodky"><summary class="astro-ojxuodky"><span class="group-label astro-ojxuodky"><span class="large astro-ojxuodky">计算机基础 · 6/6</span></span><svg aria-hidden="true" class="caret astro-ojxuodky astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.25rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></summary><sl-sidebar-restore data-index="6"></sl-sidebar-restore><ul class="astro-ojxuodky"><li class="astro-ojxuodky"><a href="/cs-basics/shell/glob/" class="astro-ojxuodky"><span class="astro-ojxuodky">glob</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/regex/" class="astro-ojxuodky"><span class="astro-ojxuodky">regex</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/stdio/" class="astro-ojxuodky"><span class="astro-ojxuodky">stdio</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/shell/terminal-colors/" class="astro-ojxuodky"><span class="astro-ojxuodky">terminal-colors</span></a></li><li class="astro-ojxuodky"><a href="/cs-basics/network/linux-network-programming/" class="astro-ojxuodky"><span class="astro-ojxuodky">socket</span></a></li><li class="astro-ojxuodky"><a href="/cheatsheet/" class="astro-ojxuodky"><span class="astro-ojxuodky">cheatsheet</span></a></li></ul></details></li></ul><script aria-hidden="true">
+		(() => {
+			const scroller = document.getElementById('starlight__sidebar');
+			if (!window._starlightScrollRestore || !scroller) return;
+			scroller.scrollTop = window._starlightScrollRestore;
+			delete window._starlightScrollRestore;
+		})();
+	</script></sl-sidebar-state-persist><div class="md:sl-hidden"><div class="mobile-preferences sl-flex astro-b5gddk54"><div class="social-icons astro-b5gddk54"></div><starlight-theme-select><label style="--sl-select-width: 6.25em" class="astro-r2p65idu"><span class="sr-only astro-r2p65idu">选择主题</span><svg aria-hidden="true" class="icon label-icon astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M21 14h-1V7a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7H3a1 1 0 0 0-1 1v2a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-2a1 1 0 0 0-1-1ZM6 7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7H6V7Zm14 10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1h16v1Z"/></svg><select autocomplete="off" class="astro-r2p65idu"><option value="dark" class="astro-r2p65idu">深色</option><option value="light" class="astro-r2p65idu">浅色</option><option value="auto" selected class="astro-r2p65idu">自动</option></select><svg aria-hidden="true" class="icon caret astro-r2p65idu astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1em;"><path d="M17 9.17a1 1 0 0 0-1.41 0L12 12.71 8.46 9.17a1 1 0 1 0-1.41 1.42l4.24 4.24a1.002 1.002 0 0 0 1.42 0L17 10.59a1.002 1.002 0 0 0 0-1.42Z"/></svg></label></starlight-theme-select><script>
+	StarlightThemeProvider.updatePickers();
+</script></div></div></div></div></nav><div class="main-frame astro-gqpr5s5a"><script type="module">var e=document.getElementById(`starlight__sidebar`),t=e?.querySelector(`sl-sidebar-state-persist`),n=`sl-sidebar-state`,r=()=>{let r=[],i=t?.dataset.hash||``;try{let e=sessionStorage.getItem(n),t=JSON.parse(e||`{}`);Array.isArray(t.open)&&t.hash===i&&(r=t.open)}catch{}return{hash:i,open:r,scroll:e?.scrollTop||0}},i=e=>{try{sessionStorage.setItem(n,JSON.stringify(e))}catch{}},a=()=>i(r()),o=(e,t)=>{let n=r();n.open[t]=e,i(n)};t?.addEventListener(`click`,e=>{if(!(e.target instanceof Element))return;let t=e.target.closest(`summary`)?.closest(`details`);if(!t)return;let n=t.querySelector(`sl-sidebar-restore`),r=parseInt(n?.dataset.index||``);isNaN(r)||o(!t.open,r)}),addEventListener(`visibilitychange`,()=>{document.visibilityState===`hidden`&&a()});</script><div class="lg:sl-flex astro-abfeecmu"><aside class="right-sidebar-container print:hidden astro-abfeecmu"><div class="right-sidebar astro-abfeecmu"><div class="lg:sl-hidden astro-q5mffni3"><mobile-starlight-toc data-min-h="2" data-max-h="3" class="astro-5ulgm6bh"><nav aria-labelledby="starlight__on-this-page--mobile" class="astro-5ulgm6bh"><details id="starlight__mobile-toc" class="astro-5ulgm6bh"><summary id="starlight__on-this-page--mobile" class="sl-flex astro-5ulgm6bh"><span class="toggle sl-flex astro-5ulgm6bh">本页内容<svg aria-hidden="true" class="caret astro-5ulgm6bh astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1rem;"><path d="m14.83 11.29-4.24-4.24a1 1 0 1 0-1.42 1.41L12.71 12l-3.54 3.54a1 1 0 0 0 0 1.41 1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.24-4.24a1.002 1.002 0 0 0 0-1.42Z"/></svg></span><span class="display-current astro-5ulgm6bh"></span></summary><div class="dropdown astro-5ulgm6bh"><ul class="isMobile astro-cxyftcne" style="--depth: 0;"><li style="--depth: 0;" class="astro-cxyftcne"><a href="#_top" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">概述</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#简介" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">简介</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#基本语法" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">基本语法</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#工作原理" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">工作原理</span></a><ul class="isMobile astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#整体流程" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">整体流程</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#内部机制" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">内部机制</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#常用选项" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">常用选项</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#使用示例" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">使用示例</span></a><ul class="isMobile astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#内建变量" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">内建变量</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#自定义变量" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">自定义变量</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#匹配模式" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">匹配模式</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#执行动作" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">执行动作</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#参考资料" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">参考资料</span></a></li></ul></div></details></nav></mobile-starlight-toc><script type="module" src="/_astro/MobileTableOfContents.astro_astro_type_script_index_0_lang.BcSo_yiZ.js"></script></div><div class="right-sidebar-panel sl-hidden lg:sl-block astro-q5mffni3"><div class="sl-container astro-q5mffni3"><starlight-toc data-min-h="2" data-max-h="3"><nav aria-labelledby="starlight__on-this-page"><h2 id="starlight__on-this-page">本页内容</h2><ul class="astro-cxyftcne" style="--depth: 0;"><li style="--depth: 0;" class="astro-cxyftcne"><a href="#_top" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">概述</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#简介" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">简介</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#基本语法" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">基本语法</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#工作原理" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">工作原理</span></a><ul class="astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#整体流程" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">整体流程</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#内部机制" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">内部机制</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#常用选项" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">常用选项</span></a></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#使用示例" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">使用示例</span></a><ul class="astro-cxyftcne" style="--depth: 1;"><li style="--depth: 1;" class="astro-cxyftcne"><a href="#内建变量" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">内建变量</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#自定义变量" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">自定义变量</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#匹配模式" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">匹配模式</span></a></li><li style="--depth: 1;" class="astro-cxyftcne"><a href="#执行动作" style="--depth: 1;" class="astro-cxyftcne"><span style="--depth: 1;" class="astro-cxyftcne">执行动作</span></a></li></ul></li><li style="--depth: 0;" class="astro-cxyftcne"><a href="#参考资料" style="--depth: 0;" class="astro-cxyftcne"><span style="--depth: 0;" class="astro-cxyftcne">参考资料</span></a></li></ul></nav></starlight-toc><script type="module" src="/_astro/TableOfContents.astro_astro_type_script_index_0_lang.Csloo1VZ.js"></script></div></div></div></aside><div class="main-pane astro-abfeecmu"><main data-pagefind-body class="astro-vdxcvpsm" lang="zh-CN" dir="ltr"><div class="content-panel astro-oil7k7jf"><div class="sl-container astro-oil7k7jf"><h1 id="_top" class="astro-2sm4b3ln">awk</h1></div></div><div class="content-panel astro-oil7k7jf"><div class="sl-container astro-oil7k7jf"><div class="sl-markdown-content"><div class="sl-heading-wrapper level-h2"><h2 id="简介">简介</h2><a class="sl-anchor-link" href="#简介"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “简介”</span></a></div>
+<p>awk 是一种用于文本和数据处理的编程语言。数据可以来自标准输入、文件或其他命令的输出。awk 提供变量、数学运算、字符串处理等编程语言功能，特别适用于<strong>按列（字段）分析和处理结构化文本</strong>（如 CSV、日志文件、配置文件等）</p>
+<div class="sl-heading-wrapper level-h2"><h2 id="基本语法">基本语法</h2><a class="sl-anchor-link" href="#基本语法"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “基本语法”</span></a></div>
+<div class="expressive-code"><link rel="stylesheet" href="/_astro/ec.w36nc.css"><script type="module" src="/_astro/ec.0vx5m.js"></script><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> [options] </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">pattern {action}</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> file</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk [options] &#x27;pattern {action}&#x27; file"><div></div></button></div></figure></div>
+<ul>
+<li><code dir="auto">options</code>：用于控制 awk 行为的选项</li>
+<li><code dir="auto">pattern</code>：用于匹配输入数据的模式（可以是正则表达式、条件表达式等）</li>
+<li><code dir="auto">action</code>：当该行匹配模式时执行的操作（用花括号 <code dir="auto">{}</code> 括起来）</li>
+</ul>
+<blockquote>
+<p>如果省略 <code dir="auto">pattern</code>，表示对所有行都执行
+如果省略 <code dir="auto">action</code>，默认是打印整行</p>
+</blockquote>
+<div class="sl-heading-wrapper level-h2"><h2 id="工作原理">工作原理</h2><a class="sl-anchor-link" href="#工作原理"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “工作原理”</span></a></div>
+<p>awk 是解释执行（逐行处理），而非一次性加载所有数据，这使得 awk 非常适合处理大文件</p>
+<div class="sl-heading-wrapper level-h3"><h3 id="整体流程">整体流程</h3><a class="sl-anchor-link" href="#整体流程"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “整体流程”</span></a></div>
+<p>awk 的工作过程分为三个阶段：</p>
+<p><strong>step1 BEGIN 块（可选）</strong></p>
+<ul>
+<li>只执行一次，在任何输入行被处理之前执行</li>
+<li>通常用于初始化变量、设置输出格式、改变分隔符等</li>
+</ul>
+<p><strong>step2 主处理块：<code dir="auto">pattern {action}</code></strong></p>
+<ul>
+<li><strong>对每一行</strong>输入数据进行处理</li>
+<li>如果指定了 <code dir="auto">pattern</code>，则仅当该行匹配 <code dir="auto">pattern</code> 时才执行 <code dir="auto">action</code></li>
+<li>如果省略 <code dir="auto">pattern</code>，则对所有行执行 <code dir="auto">action</code></li>
+</ul>
+<p><strong>step3 END 块（可选）</strong></p>
+<ul>
+<li>输入文件全部读完后执行一次</li>
+<li>通常用于输出统计结果、清理或总结工作</li>
+</ul>
+<p>工作流程图：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">START</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">  </span></span><span style="--0:#d6deeb;--1:#403f53">└── BEGIN 块执行（初始化）</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">        </span></span><span style="--0:#d6deeb;--1:#403f53">↓</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">  </span></span><span style="--0:#d6deeb;--1:#403f53">对每行输入：</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">      </span></span><span style="--0:#d6deeb;--1:#403f53">├── 拆分字段（根据 -F 选项或者 FS 变量）</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">      </span></span><span style="--0:#d6deeb;--1:#403f53">├── 判断是否匹配 pattern</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">      </span></span><span style="--0:#d6deeb;--1:#403f53">└── 执行相应的 action</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">        </span></span><span style="--0:#d6deeb;--1:#403f53">↓</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#d6deeb;--1:#403f53">  </span></span><span style="--0:#d6deeb;--1:#403f53">└── END 块执行（收尾总结）</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">FINISH</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="START  └── BEGIN 块执行（初始化）        ↓  对每行输入：      ├── 拆分字段（根据 -F 选项或者 FS 变量）      ├── 判断是否匹配 pattern      └── 执行相应的 action        ↓  └── END 块执行（收尾总结）FINISH"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="内部机制">内部机制</h3><a class="sl-anchor-link" href="#内部机制"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “内部机制”</span></a></div>
+<p><strong>1. 逐行读取</strong></p>
+<ul>
+<li>awk 默认按行读取文件或标准输入，每次处理一整行，处理的行称为<strong>记录</strong></li>
+</ul>
+<p><strong>2. 字段拆分</strong></p>
+<ul>
+<li>每行自动根据 <code dir="auto">-F fs</code> 选项或者 <code dir="auto">FS</code> 变量分割成若干字段</li>
+</ul>
+<p><strong>3. 模式匹配</strong></p>
+<ul>
+<li>正则表达式</li>
+<li>条件表达式</li>
+<li>范围匹配</li>
+<li>BEGIN 和 END 模式</li>
+</ul>
+<p><strong>4. 动作执行</strong></p>
+<ul>
+<li>打印</li>
+<li>计算</li>
+<li>条件控制</li>
+<li>循环控制</li>
+</ul>
+<div class="sl-heading-wrapper level-h2"><h2 id="常用选项">常用选项</h2><a class="sl-anchor-link" href="#常用选项"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “常用选项”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>含义与作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">-F fs</code></td>
+<td>设置字段分隔符（FS）</td>
+</tr>
+<tr>
+<td><code dir="auto">-v var=val</code></td>
+<td>向 awk 程序传入变量</td>
+</tr>
+<tr>
+<td><code dir="auto">-f script.awk</code></td>
+<td>从文件中加载 awk 脚本</td>
+</tr>
+<tr>
+<td><code dir="auto">--</code></td>
+<td>明确终止选项解析（用于防止文件名被误认为参数）</td>
+</tr>
+<tr>
+<td><code dir="auto">--help</code></td>
+<td>显示 awk 使用帮助</td>
+</tr>
+<tr>
+<td><code dir="auto">--version</code></td>
+<td>显示 awk（如 gawk）版本信息</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code dir="auto">-F</code>：设置字段分隔符</strong></p>
+<p>默认 awk 用空格或 Tab 分隔字段，<code dir="auto">-F</code> 允许自定义分隔符，可以使用正则表达式：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 以逗号分割每行，并打印第 1 列和第 2 列</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-F</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">,</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print $1, $2 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.csv</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 将一个或多个连续的英文字母作为分隔符</span></div></div><div class="ec-line"><div class="code"><span style="--0:#C5E478;--1:#3B61B0">echo</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#ECC48D;--1:#984E4D">Hello,World;TEST?FILE$</span><span style="--0:#D9F5DD;--1:#111111">"</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#7FDBCA;--1:#096E72">|</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-F</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">[a-zA-Z]+</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{print "number of field:" NR,"\n",$1,$2,$3,$4,$5}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -F &#x27;,&#x27; &#x27;{ print $1, $2 }&#x27; data.csvecho &quot;Hello,World;TEST?FILE$&quot; | awk -F &#x27;[a-zA-Z]+&#x27; &#x27;{print &quot;number of field:&quot; NR,&quot;\n&quot;,$1,$2,$3,$4,$5}&#x27;"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">-v</code>：传入变量</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-F</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">,</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-v</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">sum=</span><span style="--0:#F78C6C;--1:#AA0982">0</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ sum += $2 } END { print "Total:", sum }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.csv</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -F&#x27;,&#x27; -v sum=0 &#x27;{ sum += $2 } END { print &quot;Total:&quot;, sum }&#x27; data.csv"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">-f</code>：加载外部 awk 脚本</strong></p>
+<p>将复杂或多行 awk 脚本写入 <code dir="auto">.awk</code> 文件，然后通过 <code dir="auto">-f</code> 执行：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-f</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">myscript.awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.csv</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -f myscript.awk data.csv"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">--</code>：终止选项解析</strong></p>
+<p>当文件名可能与选项冲突（比如文件名是 <code dir="auto">-data.txt</code>）时使用：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">--</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print $1 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -- &#x27;{ print $1 }&#x27; -data.txt"><div></div></button></div></figure></div>
+<blockquote>
+<p>如果直接运行 <code dir="auto">awk '{ print $0 }' -data.txt</code> 会报错，因为 awk 以为用户传了一个选项 <code dir="auto">-d</code></p>
+</blockquote>
+<div class="sl-heading-wrapper level-h2"><h2 id="使用示例">使用示例</h2><a class="sl-anchor-link" href="#使用示例"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “使用示例”</span></a></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="内建变量">内建变量</h3><a class="sl-anchor-link" href="#内建变量"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “内建变量”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>含义说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">$0</code></td>
+<td>当前行的全部内容（未分割前的整行）</td>
+</tr>
+<tr>
+<td><code dir="auto">$1, $2...</code></td>
+<td>当前行的第 1、第 2 个字段，以此类推</td>
+</tr>
+<tr>
+<td><code dir="auto">NF</code></td>
+<td>当前行的字段数量（Number of Fields）</td>
+</tr>
+<tr>
+<td><code dir="auto">NR</code></td>
+<td>当前记录的行号（Number of Record，全局行号，跨多个文件递增）</td>
+</tr>
+<tr>
+<td><code dir="auto">FNR</code></td>
+<td>当前文件的行号（File Number of Record，每个文件行号从 1 开始）</td>
+</tr>
+<tr>
+<td><code dir="auto">FS</code></td>
+<td>输入字段分隔符（Field Separator，默认是空格或制表符）</td>
+</tr>
+<tr>
+<td><code dir="auto">OFS</code></td>
+<td>输出字段分隔符（Output Field Separator，默认是空格）</td>
+</tr>
+<tr>
+<td><code dir="auto">RS</code></td>
+<td>输入记录分隔符（Record Separator，默认是换行符）</td>
+</tr>
+<tr>
+<td><code dir="auto">ORS</code></td>
+<td>输出记录分隔符（Output Record Separator，默认是换行符）</td>
+</tr>
+<tr>
+<td><code dir="auto">FILENAME</code></td>
+<td>当前正在处理的文件名</td>
+</tr>
+<tr>
+<td><code dir="auto">ARGC</code></td>
+<td>命令行参数的数量</td>
+</tr>
+<tr>
+<td><code dir="auto">ARGV</code></td>
+<td>命令行参数的数组（<code dir="auto">ARGV[0]</code> 是脚本名或 awk）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>变量中设置分隔符要用双引号，即 <code dir="auto">","</code> 而不是 <code dir="auto">','</code></p>
+</blockquote>
+<p><strong>示例数据</strong>：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">-- data.txt --</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello,World</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello,Linux</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello,awk</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">-- file1.txt --</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">This is the first line in file1.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">This is the second line in file1.txt.</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">-- file2.txt --</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">This is the first line in file2.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">This is the second line in file2.txt.</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="-- data.txt --Hello,WorldHello,LinuxHello,awk-- file1.txt --This is the first line in file1.txt.This is the second line in file1.txt.-- file2.txt --This is the first line in file2.txt.This is the second line in file2.txt."><div></div></button></div></figure></div>
+<p><strong><code dir="auto">$0</code>：整行内容</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print $0 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ print $0 }&#x27; data.txt"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">$1</code>, <code dir="auto">$2</code>, …：各字段</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print $1, $3 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ print $1, $3 }&#x27; data.txt"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">NF</code>：字段数量</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 每行打印字段数</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print NF }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 打印每行最后一个字段</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print $NF }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ print NF }&#x27; data.txtawk &#x27;{ print $NF }&#x27; data.txt"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">NR</code> vs <code dir="auto">FNR</code>：行号</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print NR, FNR, $0 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file1.txt</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file2.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ print NR, FNR, $0 }&#x27; file1.txt file2.txt"><div></div></button></div></figure></div>
+<ul>
+<li><code dir="auto">NR</code>：全局行号（跨多个文件递增）</li>
+<li><code dir="auto">FNR</code>：当前文件行号（每个文件从 1 开始）</li>
+</ul>
+<p>输出：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">1 1 This is the first line in file1.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">2 2 This is the second line in file1.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">3 1 This is the first line in file2.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">4 2 This is the second line in file2.txt.</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="1 1 This is the first line in file1.txt.2 2 This is the second line in file1.txt.3 1 This is the first line in file2.txt.4 2 This is the second line in file2.txt."><div></div></button></div></figure></div>
+<p><strong><code dir="auto">FS</code>：输入字段分隔符</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 通过 -F 选项设置</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-F</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">,</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print $1 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 在 BEGIN 块中通过 FS 变量设置</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN { FS="," } { print $1 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -F &#x27;,&#x27; &#x27;{ print $1 }&#x27; data.txtawk &#x27;BEGIN { FS=&quot;,&quot; } { print $1 }&#x27; data.txt"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">OFS</code>：输出字段分隔符</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-F</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">,</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN { OFS=" | " } { print $1, $2 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -F &#x27;,&#x27; &#x27;BEGIN { OFS=&quot; | &quot; } { print $1, $2 }&#x27; data.txt"><div></div></button></div></figure></div>
+<p>输出：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello | World</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello | Linux</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello | awk</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="Hello | WorldHello | LinuxHello | awk"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">RS</code>：输入记录分隔符</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 修改输入记录分隔符为 ","</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN { RS="," } { print $0 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;BEGIN { RS=&quot;,&quot; } { print $0 }&#x27; data.txt"><div></div></button></div></figure></div>
+<p>输出：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">World</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Linux</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">awk</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="HelloWorldHelloLinuxHelloawk"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">ORS</code>：输出记录分隔符</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 修改输出记录分隔符为 "\n---\n"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN { RS=","; ORS="\n---\n" } { print $0 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;BEGIN { RS=&quot;,&quot;; ORS=&quot;\n---\n&quot; } { print $0 }&#x27; data.txt"><div></div></button></div></figure></div>
+<p>输出：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">---</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">World</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">---</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Linux</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Hello</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">---</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">awk</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">---</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="Hello---WorldHello---LinuxHello---awk---"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">FILENAME</code>：当前处理的文件名</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print FILENAME, $0 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file1.txt</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file2.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ print FILENAME, $0 }&#x27; file1.txt file2.txt"><div></div></button></div></figure></div>
+<p>输出：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">file1.txt This is the first line in file1.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">file1.txt This is the second line in file1.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">file2.txt This is the first line in file2.txt.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">file2.txt This is the second line in file2.txt.</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="file1.txt This is the first line in file1.txt.file1.txt This is the second line in file1.txt.file2.txt This is the first line in file2.txt.file2.txt This is the second line in file2.txt."><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="自定义变量">自定义变量</h3><a class="sl-anchor-link" href="#自定义变量"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “自定义变量”</span></a></div>
+<p>示例数据：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="text"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">-- data.csv --</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Alice,80</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Bob,90</span></div></div><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Charlie,70</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="-- data.csv --Alice,80Bob,90Charlie,70"><div></div></button></div></figure></div>
+<p><strong>1. BEGIN 块中设定变量</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-F</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">,</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN { sum = 0 } { sum += $2 } END { print "Total:", sum }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.csv</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -F&#x27;,&#x27; &#x27;BEGIN { sum = 0 } { sum += $2 } END { print &quot;Total:&quot;, sum }&#x27; data.csv"><div></div></button></div></figure></div>
+<p>输出：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Total: 240</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="Total: 240"><div></div></button></div></figure></div>
+<p><strong>2. <code dir="auto">-v</code> 选项传入变量</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-F</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">,</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#82AAFF;--1:#3B61B0">-v</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">sum=</span><span style="--0:#F78C6C;--1:#AA0982">0</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ sum += $2 } END { print "Total:", sum }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.csv</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk -F&#x27;,&#x27; -v sum=0 &#x27;{ sum += $2 } END { print &quot;Total:&quot;, sum }&#x27; data.csv"><div></div></button></div></figure></div>
+<p>输出：</p>
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#d6deeb;--1:#403f53">Total: 240</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="Total: 240"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h3"><h3 id="匹配模式">匹配模式</h3><a class="sl-anchor-link" href="#匹配模式"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “匹配模式”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>示例</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空</td>
+<td><code dir="auto">{ print $1 }</code></td>
+<td>对所有行都执行</td>
+</tr>
+<tr>
+<td>正则表达式</td>
+<td><code dir="auto">/error/ { print $0 }</code></td>
+<td>匹配包含 <code dir="auto">error</code> 的行</td>
+</tr>
+<tr>
+<td>比较表达式</td>
+<td><code dir="auto">$3 &gt; 100</code></td>
+<td>第三列大于 100 的行</td>
+</tr>
+<tr>
+<td>模式组合（逻辑）</td>
+<td><code dir="auto">$2 &gt; 50 &amp;&amp; /ok/</code></td>
+<td>第二列大于 50 且整行包含 <code dir="auto">ok</code></td>
+</tr>
+<tr>
+<td>范围模式（区间）</td>
+<td><code dir="auto">/BEGIN/,/END/</code></td>
+<td>从匹配 <code dir="auto">BEGIN</code> 的行到 <code dir="auto">END</code> 的行</td>
+</tr>
+<tr>
+<td>特殊模式 BEGIN/END</td>
+<td><code dir="auto">BEGIN { ... } END { ... }</code></td>
+<td>在开始前执行一次，结束后执行一次</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h3"><h3 id="执行动作">执行动作</h3><a class="sl-anchor-link" href="#执行动作"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “执行动作”</span></a></div>
+<p>常见的 awk action 类型：打印输出、变量运算、字符串运算、流程控制、内建函数、系统交互。</p>
+<div class="sl-heading-wrapper level-h4"><h4 id="打印输出">打印输出</h4><a class="sl-anchor-link" href="#打印输出"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “打印输出”</span></a></div>
+<p><strong><code dir="auto">print</code>：普通打印</strong></p>
+<ul>
+<li>自动添加输出字段分隔符（<code dir="auto">OFS</code>）</li>
+<li>默认使用空格作为分隔符（可以通过 <code dir="auto">OFS</code> 设置）</li>
+</ul>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ print $1, $3 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN { OFS="," } { print $1, $2 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ print $1, $3 }&#x27; file.txtawk &#x27;BEGIN { OFS=&quot;,&quot; } { print $1, $2 }&#x27; file.txt"><div></div></button></div></figure></div>
+<p><strong><code dir="auto">printf</code>：格式控制打印</strong></p>
+<ul>
+<li>更灵活的格式控制（与 C 语言几乎一致）
+<ul>
+<li><code dir="auto">%d</code>：十进制整数</li>
+<li><code dir="auto">%c</code>：单个字符</li>
+<li><code dir="auto">%s</code>：字符串，<code dir="auto">%-10s</code> 左对齐，占 10 宽度</li>
+<li><code dir="auto">%f</code>：浮点数，<code dir="auto">%6.2f</code> 表示宽度 6，小数点后保留 2 位</li>
+</ul>
+</li>
+<li>不自动添加 <code dir="auto">OFS</code></li>
+</ul>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ printf "%-10s %6.2f\n", $1, $2 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ printf &quot;%-10s %6.2f\n&quot;, $1, $2 }&#x27; file.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="变量运算">变量运算</h4><a class="sl-anchor-link" href="#变量运算"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “变量运算”</span></a></div>
+<ul>
+<li>变量类型是<strong>动态的</strong>（自动根据上下文转换为数字或字符串）</li>
+<li>变量可以在 BEGIN 块中声明并赋值；也可以不声明直接使用，默认初始值为 <strong>0（数字）或空串（字符串）</strong></li>
+<li>可以在 <code dir="auto">BEGIN</code>、<code dir="auto">END</code> 或每一行中使用变量</li>
+</ul>
+<p><strong>常见算术运算符</strong></p>
+<table>
+<thead>
+<tr>
+<th>运算类型</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>赋值</td>
+<td><code dir="auto">x = 5</code></td>
+<td>基本赋值</td>
+</tr>
+<tr>
+<td>加法</td>
+<td><code dir="auto">x = x + 1</code></td>
+<td>也可以写作 <code dir="auto">x += 1</code></td>
+</tr>
+<tr>
+<td>自增/自减</td>
+<td><code dir="auto">x++</code>, <code dir="auto">--y</code></td>
+<td>和 C 一样，支持前后缀形式</td>
+</tr>
+<tr>
+<td>减法</td>
+<td><code dir="auto">x = x - 2</code></td>
+<td>也支持 <code dir="auto">x -= 2</code></td>
+</tr>
+<tr>
+<td>乘除</td>
+<td><code dir="auto">x *= 3</code>, <code dir="auto">x /= 2</code></td>
+<td>乘法与除法</td>
+</tr>
+<tr>
+<td>求余</td>
+<td><code dir="auto">x % 3</code></td>
+<td>取模</td>
+</tr>
+<tr>
+<td>条件</td>
+<td><code dir="auto">x &gt; y</code>, <code dir="auto">x == y</code></td>
+<td>比较运算符用于判断</td>
+</tr>
+<tr>
+<td>三目运算符</td>
+<td><code dir="auto">x &gt; 0 ? x : -x</code></td>
+<td>如果 x &gt; 0 就取 x，否则 -x</td>
+</tr>
+</tbody>
+</table>
+<p><strong>累加示例：统计总和</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ sum += $1 } END { print "Total:", sum }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ sum += $1 } END { print &quot;Total:&quot;, sum }&#x27; data.txt"><div></div></button></div></figure></div>
+<p><strong>求平均值</strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{ sum += $1 } END { print "Average:", sum/NR }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">data.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{ sum += $1 } END { print &quot;Average:&quot;, sum/NR }&#x27; data.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="字符串运算">字符串运算</h4><a class="sl-anchor-link" href="#字符串运算"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “字符串运算”</span></a></div>
+<ul>
+<li>awk 变量可以存储字符串，不需要声明类型</li>
+<li>字符串用双引号 <code dir="auto">"</code> 括起来</li>
+<li>字符串可以直接赋值给变量</li>
+</ul>
+<p><strong>1. 字符串拼接</strong></p>
+<p>awk 中字符串拼接直接把字符串或变量放在一起即可，不需要用 <code dir="auto">+</code>：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">str1 = "Hello"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">str2 = "World"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">result = str1 str2</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print result  # 输出 HelloWorld</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">result2 = str1 " " str2</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print result2 # 输出 Hello World</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;BEGIN {  str1 = &quot;Hello&quot;  str2 = &quot;World&quot;  result = str1 str2  print result  # 输出 HelloWorld  result2 = str1 &quot; &quot; str2  print result2 # 输出 Hello World}&#x27;"><div></div></button></div></figure></div>
+<p><strong>2. 字符串比较</strong></p>
+<p>支持 <code dir="auto">==</code>、<code dir="auto">!=</code>、<code dir="auto">&lt;</code>、<code dir="auto">&lt;=</code>、<code dir="auto">&gt;</code>、<code dir="auto">&gt;=</code>，比较按字典顺序（ASCII）进行：</p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">a = "apple"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">b = "banana"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">if (a &lt; b) print a " &lt; " b</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">else print a " &gt;= " b</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;BEGIN {  a = &quot;apple&quot;  b = &quot;banana&quot;  if (a < b) print a &quot; < &quot; b  else print a &quot; >= &quot; b}&#x27;"><div></div></button></div></figure></div>
+<p><strong>3. 正则表达式匹配字符串</strong></p>
+<ul>
+<li><code dir="auto">~</code> 表示匹配</li>
+<li><code dir="auto">!~</code> 表示不匹配</li>
+</ul>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">if ($0 ~ /pattern/) print $0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{  if ($0 ~ /pattern/) print $0}&#x27;"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="流程控制">流程控制</h4><a class="sl-anchor-link" href="#流程控制"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “流程控制”</span></a></div>
+<table>
+<thead>
+<tr>
+<th>控制结构</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">if</code> / <code dir="auto">else</code></td>
+<td>条件判断</td>
+</tr>
+<tr>
+<td><code dir="auto">while</code></td>
+<td>条件循环</td>
+</tr>
+<tr>
+<td><code dir="auto">for</code></td>
+<td>计数循环</td>
+</tr>
+<tr>
+<td><code dir="auto">break</code> / <code dir="auto">continue</code></td>
+<td>控制循环流程</td>
+</tr>
+<tr>
+<td><code dir="auto">next</code></td>
+<td>结束当前记录，跳到下一行</td>
+</tr>
+<tr>
+<td><code dir="auto">exit</code></td>
+<td>立即终止程序</td>
+</tr>
+</tbody>
+</table>
+<p><strong>1. <code dir="auto">if-else</code></strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">{</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">if ($2 &gt;= 60)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">    </span></span><span style="--0:#ECC48D;--1:#984E4D">print $1, "pass";</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">else</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">    </span></span><span style="--0:#ECC48D;--1:#984E4D">print $1, "fail";</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">scores.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;{  if ($2 >= 60)    print $1, &quot;pass&quot;;  else    print $1, &quot;fail&quot;;}&#x27; scores.txt"><div></div></button></div></figure></div>
+<p><strong>2. <code dir="auto">while</code></strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">i = 1</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">while (i &lt; 100) {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">    </span></span><span style="--0:#ECC48D;--1:#984E4D">print i</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">    </span></span><span style="--0:#ECC48D;--1:#984E4D">i *= 2</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;BEGIN {  i = 1  while (i < 100) {    print i    i *= 2  }}&#x27;"><div></div></button></div></figure></div>
+<p><strong>3. <code dir="auto">for</code></strong></p>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">NR &lt;= 5 {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">for (i = 1; i &lt;= NF; i++)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">    </span></span><span style="--0:#ECC48D;--1:#984E4D">print "Field", i, "=", $i</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;NR <= 5 {  for (i = 1; i <= NF; i++)    print &quot;Field&quot;, i, &quot;=&quot;, $i}&#x27; file.txt"><div></div></button></div></figure></div>
+<p><strong>4. <code dir="auto">next</code> 与 <code dir="auto">exit</code></strong></p>
+<table>
+<thead>
+<tr>
+<th>关键字</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">next</code></td>
+<td>结束当前记录，跳到下一行</td>
+</tr>
+<tr>
+<td><code dir="auto">exit</code></td>
+<td>立即结束程序执行</td>
+</tr>
+</tbody>
+</table>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 跳过空行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">NF == 0 { next } { print "Non-empty:", $0 }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 只处理前 3 行</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">NR &gt; 3 { exit } { print }</span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#ECC48D;--1:#3B61B0">file.txt</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;NF == 0 { next } { print &quot;Non-empty:&quot;, $0 }&#x27; file.txtawk &#x27;NR > 3 { exit } { print }&#x27; file.txt"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h4"><h4 id="内置函数">内置函数</h4><a class="sl-anchor-link" href="#内置函数"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “内置函数”</span></a></div>
+<p><strong>1. 字符串函数</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">length(s)</code></td>
+<td>返回字符串 <code dir="auto">s</code> 的长度，<code dir="auto">s</code> 可省略表示当前记录（$0）</td>
+<td><code dir="auto">length("hello")</code> -&gt; 5</td>
+</tr>
+<tr>
+<td><code dir="auto">substr(s, m, n)</code></td>
+<td>从字符串 <code dir="auto">s</code> 的第 <code dir="auto">m</code> 个字符开始，取 <code dir="auto">n</code> 个字符</td>
+<td><code dir="auto">substr("abcdef", 2, 3)</code> -&gt; <code dir="auto">"bcd"</code></td>
+</tr>
+<tr>
+<td><code dir="auto">index(s, t)</code></td>
+<td>返回子串 <code dir="auto">t</code> 在 <code dir="auto">s</code> 中的位置，找不到返回 0</td>
+<td><code dir="auto">index("hello", "ll")</code> -&gt; 3</td>
+</tr>
+<tr>
+<td><code dir="auto">split(s, a, sep)</code></td>
+<td>把字符串 <code dir="auto">s</code> 按分隔符 <code dir="auto">sep</code> 拆分到数组 <code dir="auto">a</code> 中</td>
+<td><code dir="auto">split("a,b,c", arr, ",")</code> 后 arr[1]=“a”</td>
+</tr>
+<tr>
+<td><code dir="auto">tolower(s)</code></td>
+<td>返回字符串 <code dir="auto">s</code> 的小写版本（GNU awk）</td>
+<td><code dir="auto">tolower("Hello")</code> -&gt; <code dir="auto">"hello"</code></td>
+</tr>
+<tr>
+<td><code dir="auto">toupper(s)</code></td>
+<td>返回字符串 <code dir="auto">s</code> 的大写版本（GNU awk）</td>
+<td><code dir="auto">toupper("Hello")</code> -&gt; <code dir="auto">"HELLO"</code></td>
+</tr>
+<tr>
+<td><code dir="auto">gsub(r, t, s)</code></td>
+<td>全局替换字符串 <code dir="auto">s</code> 中所有匹配正则 <code dir="auto">r</code> 的部分为 <code dir="auto">t</code></td>
+<td><code dir="auto">gsub("foo", "bar", s)</code></td>
+</tr>
+<tr>
+<td><code dir="auto">sub(r, t, s)</code></td>
+<td>替换字符串 <code dir="auto">s</code> 中第一个匹配正则 <code dir="auto">r</code> 的部分为 <code dir="auto">t</code></td>
+<td><code dir="auto">sub("foo", "bar", s)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. 数学函数</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">sin(x)</code></td>
+<td>返回 <code dir="auto">x</code> 的正弦（弧度）</td>
+<td><code dir="auto">sin(3.14/2)</code></td>
+</tr>
+<tr>
+<td><code dir="auto">cos(x)</code></td>
+<td>返回 <code dir="auto">x</code> 的余弦（弧度）</td>
+<td><code dir="auto">cos(0)</code></td>
+</tr>
+<tr>
+<td><code dir="auto">atan2(y,x)</code></td>
+<td>返回 <code dir="auto">y/x</code> 的反正切（考虑象限）</td>
+<td><code dir="auto">atan2(1,1)</code></td>
+</tr>
+<tr>
+<td><code dir="auto">exp(x)</code></td>
+<td>返回 <code dir="auto">e</code> 的 <code dir="auto">x</code> 次幂</td>
+<td><code dir="auto">exp(1)</code></td>
+</tr>
+<tr>
+<td><code dir="auto">log(x)</code></td>
+<td>返回自然对数</td>
+<td><code dir="auto">log(10)</code></td>
+</tr>
+<tr>
+<td><code dir="auto">sqrt(x)</code></td>
+<td>返回平方根</td>
+<td><code dir="auto">sqrt(9)</code></td>
+</tr>
+<tr>
+<td><code dir="auto">int(x)</code></td>
+<td>返回 <code dir="auto">x</code> 的整数部分（向零取整）</td>
+<td><code dir="auto">int(3.7)</code> -&gt; 3</td>
+</tr>
+<tr>
+<td><code dir="auto">rand()</code></td>
+<td>返回 0 到 1 之间的伪随机数</td>
+<td><code dir="auto">rand()</code></td>
+</tr>
+<tr>
+<td><code dir="auto">srand(x)</code></td>
+<td>设置随机数种子</td>
+<td><code dir="auto">srand(1234)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>3. 时间函数</strong></p>
+<table>
+<thead>
+<tr>
+<th>函数名</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">systime()</code></td>
+<td>返回当前时间的 Unix 时间戳（秒）</td>
+<td><code dir="auto">print systime()</code></td>
+</tr>
+<tr>
+<td><code dir="auto">strftime(fmt, timestamp)</code></td>
+<td>格式化时间，<code dir="auto">fmt</code> 是格式字符串，<code dir="auto">timestamp</code> 默认为当前时间</td>
+<td><code dir="auto">strftime("%Y-%m-%d %H:%M:%S")</code></td>
+</tr>
+</tbody>
+</table>
+<p>常用时间格式说明：</p>
+<table>
+<thead>
+<tr>
+<th>格式符</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code dir="auto">%Y</code></td>
+<td>4 位年份</td>
+<td>2025</td>
+</tr>
+<tr>
+<td><code dir="auto">%m</code></td>
+<td>月份（01-12）</td>
+<td>08</td>
+</tr>
+<tr>
+<td><code dir="auto">%d</code></td>
+<td>日期（01-31）</td>
+<td>02</td>
+</tr>
+<tr>
+<td><code dir="auto">%H</code></td>
+<td>小时（00-23）</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code dir="auto">%M</code></td>
+<td>分钟（00-59）</td>
+<td>45</td>
+</tr>
+<tr>
+<td><code dir="auto">%S</code></td>
+<td>秒（00-59）</td>
+<td>30</td>
+</tr>
+</tbody>
+</table>
+<div class="sl-heading-wrapper level-h4"><h4 id="系统交互">系统交互</h4><a class="sl-anchor-link" href="#系统交互"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “系统交互”</span></a></div>
+<p><strong>1. 执行外部命令</strong></p>
+<p>使用 <code dir="auto">system()</code> 执行外部命令：</p>
+<ul>
+<li><code dir="auto">system(command)</code> 会调用 shell 执行 <code dir="auto">command</code> 字符串里的命令</li>
+<li>返回值是命令的退出状态码（0 通常表示成功）</li>
+<li>适合执行单条命令，不返回命令输出</li>
+</ul>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">ret = system("date")</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print "Exit code:", ret</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;BEGIN {  ret = system(&quot;date&quot;)  print &quot;Exit code:&quot;, ret}&#x27;"><div></div></button></div></figure></div>
+<p><strong>2. 读写文件</strong></p>
+<ul>
+<li><code dir="auto">getline &lt; "filename"</code> 从文件读取一行</li>
+<li><code dir="auto">print ... &gt; "filename"</code> 向文件写入（覆盖）</li>
+<li><code dir="auto">print ... &gt;&gt; "filename"</code> 向文件追加</li>
+</ul>
+<div class="expressive-code"><figure class="frame is-terminal not-content"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 读取文件第一行并打印</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">getline line &lt; "data.txt"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print "First line is:", line</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 写入新内容到文件（覆盖）</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print "Hello, World!" &gt; "output.txt"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#919F9F;--1:#5F636F"># 向文件追加内容</span></div></div><div class="ec-line"><div class="code"><span style="--0:#82AAFF;--1:#3B61B0">awk</span><span style="--0:#D6DEEB;--1:#403F53"> </span><span style="--0:#D9F5DD;--1:#111111">'</span><span style="--0:#ECC48D;--1:#984E4D">BEGIN {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print "First line" &gt; "output.txt"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print "Second line" &gt;&gt; "output.txt"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#ECC48D;--1:#984E4D">  </span></span><span style="--0:#ECC48D;--1:#984E4D">print "Third line" &gt;&gt; "output.txt"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#ECC48D;--1:#984E4D">}</span><span style="--0:#D9F5DD;--1:#111111">'</span></div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="awk &#x27;BEGIN {  getline line < &quot;data.txt&quot;  print &quot;First line is:&quot;, line}&#x27;awk &#x27;BEGIN {  print &quot;Hello, World!&quot; > &quot;output.txt&quot;}&#x27;awk &#x27;BEGIN {  print &quot;First line&quot; > &quot;output.txt&quot;  print &quot;Second line&quot; >> &quot;output.txt&quot;  print &quot;Third line&quot; >> &quot;output.txt&quot;}&#x27;"><div></div></button></div></figure></div>
+<div class="sl-heading-wrapper level-h2"><h2 id="参考资料">参考资料</h2><a class="sl-anchor-link" href="#参考资料"><span aria-hidden="true" class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span><span class="sr-only" data-pagefind-ignore>Section titled “参考资料”</span></a></div>
+<ul>
+<li><code dir="auto">man awk</code></li>
+<li><a href="https://www.gnu.org/software/gawk/manual/gawk.html">GNU Awk User’s Guide</a></li>
+</ul>
+</div><footer class="sl-flex astro-xhxjzfa7"><div class="meta sl-flex astro-xhxjzfa7"></div><div class="pagination-links print:hidden astro-jgq3vlii" dir="ltr"><a href="/linux-tools/02-text-processing/grep/" rel="prev" class="astro-jgq3vlii"><svg aria-hidden="true" class="astro-jgq3vlii astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17 11H9.41l3.3-3.29a1.004 1.004 0 1 0-1.42-1.42l-5 5a1 1 0 0 0-.21.33 1 1 0 0 0 0 .76 1 1 0 0 0 .21.33l5 5a1.002 1.002 0 0 0 1.639-.325 1 1 0 0 0-.219-1.095L9.41 13H17a1 1 0 0 0 0-2Z"/></svg><span class="astro-jgq3vlii">上一页<br class="astro-jgq3vlii"><span class="link-title astro-jgq3vlii">grep</span></span></a><a href="/linux-tools/02-text-processing/sed/" rel="next" class="astro-jgq3vlii"><svg aria-hidden="true" class="astro-jgq3vlii astro-n5k4ipy7" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="--sl-icon-size: 1.5rem;"><path d="M17.92 11.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.003 1.003 0 1 0-1.42 1.42l3.3 3.29H7a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"/></svg><span class="astro-jgq3vlii">下一页<br class="astro-jgq3vlii"><span class="link-title astro-jgq3vlii">sed</span></span></a></div></footer></div></div></main></div></div></div></div></body></html>

@@ -9,9 +9,9 @@ const kb = JSON.parse(fs.readFileSync(new URL('./src/data/kb.json', import.meta.
  * 侧栏由索引数据生成，不手工维护。
  * 分组标签带 已写/总数 计数 —— 结构装置要编码真实信息（设计规范 §2 原则二）。
  *
- * 已知偏差：待写条目不在此列出。Starlight 的侧栏项必须是可跳转链接，
- * 无法渲染「灰化不可点」态。全部 58 个条目（含待写）见总目录页。
- * 后续可通过覆盖 Sidebar 组件补上，见 docs/page-specs.md §7。
+ * 待写条目不在此列出：Starlight 的侧栏项必须是可跳转链接，无法渲染「灰化不可点」态。
+ * 目前没有待写条目，这条不影响显示；以后索引表再出现待写项时，它们只会出现在
+ * 总目录页。要补齐需覆盖 Sidebar 组件，见 docs/page-specs.md §7。
  */
 const sidebar = [
   { label: '总目录', link: '/' },
@@ -34,6 +34,8 @@ const sidebar = [
 ];
 
 export default defineConfig({
+  // 部署地址。Starlight 据此生成 sitemap 和 canonical 链接
+  site: 'https://cs.bdathe.wiki',
   integrations: [
     starlight({
       title: 'knowledge-hub',

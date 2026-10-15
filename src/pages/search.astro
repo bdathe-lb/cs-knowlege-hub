@@ -50,27 +50,36 @@ const INDEX = kb.cats.flatMap((c) =>
   const esc = (s) =>
     String(s ?? '').replace(/[&<>"]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[m]);
   const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // 先在原文上切分、再逐段转义。反过来做的话，搜 amp / lt 会切进 &amp; &lt; 这类实体
   const hi = (s, term) =>
-    term ? esc(s).replace(new RegExp(reEsc(esc(term)), 'gi'), (m) => `<mark>${m}</mark>`) : esc(s);
+    term
+      ? String(s ?? '')
+          .split(new RegExp(`(${reEsc(term)})`, 'gi'))
+          .map((p, i) => (i % 2 ? `<mark>${esc(p)}</mark>` : esc(p)))
+          .join('')
+      : esc(s);
 
   /* ── 条目匹配：按规范的优先级表出结果 ─────────────────────────── */
   function searchMeta(query) {
     const lq = query.toLowerCase();
     const hits = [];
+    // 所有字段都按小写比较 —— 说明里有 ANSI、Shell、IO 这类大写词
     for (const e of INDEX) {
       const ln = e.n.toLowerCase();
+      const ld = e.d.toLowerCase();
+      const li = e.i.toLowerCase();
       // 条目名匹配压过说明匹配；同级再按匹配位置排。
       // 搜「压缩」时 gzip（说明「压缩/解压工具」，命中在位置 0）要排在
       // tr（说明「字符转换/删除/压缩」，命中在位置 7）前面。
       if (ln.startsWith(lq)) hits.push({ e, where: e.c, text: e.d, score: 0, pos: 0 });
       else if (ln.includes(lq)) hits.push({ e, where: e.c, text: e.d, score: 1, pos: ln.indexOf(lq) });
-      else if (e.d.includes(query)) hits.push({ e, where: e.c, text: e.d, score: 2, pos: e.d.indexOf(query) });
+      else if (ld.includes(lq)) hits.push({ e, where: e.c, text: e.d, score: 2, pos: ld.indexOf(lq) });
       for (const h of e.h) {
         const i = h.toLowerCase().indexOf(lq);
         if (i >= 0) hits.push({ e, where: `${e.t} › ${h}`, text: e.i, score: 3, pos: i });
       }
-      if (e.i && e.i.includes(query))
-        hits.push({ e, where: `${e.t} › ${e.h[0] ?? ''}`, text: e.i, score: 4, pos: e.i.indexOf(query) });
+      if (li.includes(lq))
+        hits.push({ e, where: `${e.t} › ${e.h[0] ?? ''}`, text: e.i, score: 4, pos: li.indexOf(lq) });
     }
     const seen = new Set();
     return hits

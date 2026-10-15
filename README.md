@@ -7,8 +7,9 @@
 
 ## 现状
 
-站点已跑通。Astro 7 + Starlight 0.41，48 个页面，Pagefind 中文全文搜索。
-源仓库的笔记已全部覆盖 —— 38 篇笔记、16 个图片资源。
+站点已跑通。Astro 7 + Starlight 0.41，Pagefind 中文全文搜索。
+源仓库的笔记全部覆盖，当前的笔记数、行数、待写条目数跑 `make sync` 查看 ——
+这些数字随笔记增减变化，不在这里写死。
 
 ```bash
 make             # 列出所有目标
@@ -34,7 +35,7 @@ make build KB_SOURCE=/path/to/knowledge-hub
 ~/projects/knowledge-hub/          源仓库（只读，唯一真源）
         │
         ├─ linux-tools/README.md ──┐  索引表 → 分区 / 条目 / 待写状态
-        ├─ **/*.md ────────────────┤  38 篇笔记
+        ├─ **/*.md ────────────────┤  笔记正文
         └─ assets/ ────────────────┤  图片
                                    ▼
                           scripts/sync.mjs
@@ -57,8 +58,9 @@ make build KB_SOURCE=/path/to/knowledge-hub
 
 ### 已知偏差
 
-侧栏只列已写笔记，不含 20 个待写条目 —— Starlight 的侧栏项必须是可跳转链接，
-无法渲染「灰化不可点」态。全部 58 个条目见总目录页。
+侧栏只列已写笔记，不列待写条目 —— Starlight 的侧栏项必须是可跳转链接，
+无法渲染「灰化不可点」态。目前没有待写条目，这条暂不可见；
+以后索引表再出现待写项，它们只会出现在总目录页。
 补齐需覆盖 Sidebar 组件，见 `docs/page-specs.md` §7。
 
 ### 设计方向
@@ -78,7 +80,7 @@ make build KB_SOURCE=/path/to/knowledge-hub
 
 ## 为什么是这个方向
 
-判断依据来自内容成分，不是观感偏好：
+判断依据来自内容成分，不是观感偏好。下表是做这个决定时的快照，之后不再随笔记更新：
 
 | | |
 |---|---|

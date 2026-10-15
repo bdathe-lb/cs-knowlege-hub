@@ -16,6 +16,7 @@ make             # 列出所有目标
 make dev         # http://localhost:4321
 make build       # → dist/
 make preview     # 构建后预览 —— 全文搜索只有这里能用
+make deploy      # 构建并同步到 https://cs.bdathe.wiki
 make clean       # 删掉同步产物与构建产物
 ```
 

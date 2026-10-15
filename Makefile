@@ -17,7 +17,12 @@
 GENERATED := src/content/docs src/data public/assets
 BUILT     := dist .astro
 
-.PHONY: help install sync dev build preview clean distclean
+# 线上 https://cs.bdathe.wiki ，托管在 GitHub Pages：这个仓库的 gh-pages 分支。
+# 不放腾讯云 —— 大陆服务器上的域名要备案，未备案会被拦截。
+# 自定义域名靠 public/CNAME，public/.nojekyll 防止 _astro/ 被 Jekyll 当隐藏目录丢掉。
+DEPLOY_REMOTE := git@github.com:bdathe-lb/cs-knowlege-hub.git
+
+.PHONY: help install sync dev build preview deploy clean distclean
 
 help: ## 列出可用目标
 	@awk -F':.*## ' '/^[a-z-]+:.*## /{printf "  make %-9s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -41,6 +46,14 @@ build: node_modules ## 构建到 dist/
 
 preview: build ## 构建后起预览服务器，全文搜索只有这里能用
 	npm run preview
+
+# gh-pages 只存构建产物，每次都是一个全新的单提交、强推覆盖 ——
+# 历史没有价值，源码的历史在 main 上。提交信息记下当时 main 的版本。
+deploy: build ## 构建并发布到 cs.bdathe.wiki（GitHub Pages）
+	cd dist && rm -rf .git && git init -q -b gh-pages && git add -A && \
+	  git commit -qm "deploy $$(git -C .. rev-parse --short HEAD)" && \
+	  git push -qf $(DEPLOY_REMOTE) gh-pages
+	rm -rf dist/.git
 
 clean: ## 删掉同步产物与构建产物
 	rm -rf $(GENERATED) $(BUILT)
